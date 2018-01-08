@@ -1,0 +1,188 @@
+package org.francisjohnson.pscpm.secrets.presentation.views;
+
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.francisjohnson.pscpm.secrets.business.SecretsFacade;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.ACCOUNT_MGMT_FORM;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.LOGIN_FORM;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.NEW_ACCOUNT_FORM;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.NEW_SERVER_FORM;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.SERVER_BROWSER;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.SERVER_MGMT_FORM;
+import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.WILDCARD;
+import org.francisjohnson.pscpm.secrets.presentation.PSCPMClientMain;
+import org.francisjohnson.pscpm.secrets.presentation.events.LoginSucceededEvent;
+import org.francisjohnson.pscpm.secrets.presentation.events.NavigationEvent;
+import org.francisjohnson.pscpm.secrets.presentation.events.NavigationListener;
+import org.francisjohnson.pscpm.secrets.presentation.events.PSCPMOutcome;
+import org.francisjohnson.pscpm.general.services.MapUtil;
+import org.francisjohnson.pscpm.general.data.Pair;
+import org.francisjohnson.pscpm.secrets.presentation.general.PSCPMPanel;
+
+
+public class PSCPMMainContentPanel extends PSCPMPanel implements NavigationListener {
+    private ServerSecretsBrowserPanel serverBrowserView;
+    private LoginPanel loginView;
+    private CardLayout navigationModel = new CardLayout();
+
+    public PSCPMMainContentPanel() {
+        try {
+            jbInit();
+        } catch (Exception e) {
+            handleException("PSCPM Main UI Unavailable",
+                            "Unable to initialize the system's main UI.", e);
+        }
+    }
+
+    public static void main(String... args) {
+        PSCPMMainContentPanel test = new PSCPMMainContentPanel();
+        PSCPMClientMain.main(test);
+    }
+
+    private void jbInit() throws Exception {
+        setSize(new Dimension(800, 600));
+        setLoginView(new LoginPanel());
+        setServerBrowserView(new ServerSecretsBrowserPanel());
+        initCardLayout();
+        setNavigator(this);
+        for (Component compon : getComponents()) {
+            if (compon instanceof PSCPMPanel) {
+                ((PSCPMPanel)compon).setNavigator(this);
+            }
+        }
+        navigate(LOGIN_FORM);
+    }
+
+    private void initCardLayout() {
+        setNavigationModel(new CardLayout());
+        setLayout(getNavigationModel());
+        add(getServerBrowserView(), SERVER_BROWSER.name());
+        add(getLoginView(), LOGIN_FORM.name());
+    }
+
+    public void navigate(PSCPMViewId toViewId) {
+        try {
+            switch (toViewId) {
+            case SERVER_BROWSER:
+                {
+                    getServerBrowserView().reinit();
+                    break;
+                }
+            default:
+                {
+                    // It is normal to reach this block;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            handleException("Navigation failed.", e);
+        }
+        debug("Navigating to " + toViewId.getDisplayName() + ".");
+        getNavigationModel().show(this, toViewId.name());
+    }
+
+    private void initServerBrowser() {
+        try {
+            getServerBrowserView().reinit();
+        } catch (Exception e) {
+            handleException("Server Browser Unavailable",
+                            "Unable to reinitialize the server browser.", e);
+        }
+    }
+
+    private void propagateSession(SecretsFacade session) {
+        List<String> result = new ArrayList<String>();
+        for (Component compon : getComponents()) {
+            if (compon instanceof PSCPMPanel) {
+                ((PSCPMPanel)compon).setSession(session);
+                result.add(compon.getClass().getName());
+            }
+        }
+        debug("Propagated the session:",
+              result.toArray(new String[result.size()]));
+    }
+
+    public static final Map<Pair<PSCPMViewId, PSCPMOutcome>, PSCPMViewId> NAVIGATION_CASES =
+        Collections.unmodifiableMap(MapUtil.asMap(MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(WILDCARD, PSCPMOutcome.LOGOUT),
+                                                                LOGIN_FORM), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(WILDCARD, PSCPMOutcome.BROWSE_SERVERS),
+                                                                SERVER_BROWSER), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(WILDCARD, PSCPMOutcome.ADD_SERVER),
+                                                                NEW_SERVER_FORM), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(LOGIN_FORM, PSCPMOutcome.SUCCESS),
+                                                                SERVER_BROWSER), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(SERVER_BROWSER, PSCPMOutcome.MANAGE_SERVER),
+                                                                SERVER_MGMT_FORM), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(NEW_SERVER_FORM, PSCPMOutcome.ADD_ACCOUNT),
+                                                                NEW_ACCOUNT_FORM), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(NEW_SERVER_FORM, PSCPMOutcome.MANAGE_ACCOUNT),
+                                                                ACCOUNT_MGMT_FORM), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(SERVER_MGMT_FORM, PSCPMOutcome.ADD_ACCOUNT),
+                                                                NEW_ACCOUNT_FORM), MapUtil.entry(new Pair<PSCPMViewId, PSCPMOutcome>(SERVER_MGMT_FORM, PSCPMOutcome.MANAGE_ACCOUNT),
+                                                                ACCOUNT_MGMT_FORM)));
+
+
+    public void navigate(NavigationEvent evt) {
+        PSCPMViewId fromViewId = evt.getFromViewId();
+        PSCPMOutcome fromOutcome = evt.getFromOutcome();
+        PSCPMViewId toViewId = null;
+        for (PSCPMViewId viewId : Arrays.asList(fromViewId, WILDCARD)) {
+            Pair<PSCPMViewId, PSCPMOutcome> navKey =
+                new Pair<PSCPMViewId, PSCPMOutcome>(viewId,
+                                                    evt.getFromOutcome());
+            if (NAVIGATION_CASES.containsKey(navKey)) {
+                toViewId = NAVIGATION_CASES.get(navKey);
+                break;
+            }
+        }
+        if (evt.getFromOutcome() == PSCPMOutcome.LOGOUT) {
+            getSession().endSession();
+            debug("Logged off.");
+            propagateSession(null);
+        } else if (evt instanceof LoginSucceededEvent &&
+                   fromViewId == LOGIN_FORM &&
+                   fromOutcome == PSCPMOutcome.SUCCESS) {
+            LoginSucceededEvent success = (LoginSucceededEvent)evt;
+            setSession(success.getSession());
+            propagateSession(success.getSession());
+        }
+        if (toViewId != null) {
+        } else if (fromViewId == NEW_ACCOUNT_FORM ||
+                   fromViewId == ACCOUNT_MGMT_FORM) {
+            if (fromOutcome == PSCPMOutcome.DONE) {
+                throw new UnsupportedOperationException("It's ambiguous!");
+            }
+        }
+        if (toViewId == null) {
+            debug("Potential error:",
+                  "The to-view-id is null.  This is an error in some cases.");
+        } else {
+            navigate(toViewId);
+        }
+    }
+
+    private void setServerBrowserView(ServerSecretsBrowserPanel serverBrowserView) {
+        this.serverBrowserView = serverBrowserView;
+    }
+
+    private ServerSecretsBrowserPanel getServerBrowserView() {
+        return serverBrowserView;
+    }
+
+    private void setLoginView(LoginPanel loginView) {
+        this.loginView = loginView;
+    }
+
+    private LoginPanel getLoginView() {
+        return loginView;
+    }
+
+    private void setNavigationModel(CardLayout navigationModel) {
+        this.navigationModel = navigationModel;
+    }
+
+    private CardLayout getNavigationModel() {
+        return navigationModel;
+    }
+}
