@@ -77,6 +77,19 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
 
     @Override
     public User getCurrentUser() {
+//        System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
+            Client client = ClientBuilder.newClient();
+            byte[] user = client.target("http://localhost:8080/pscpm-services-web/security/authenticate")
+                    .request()
+                    .get(byte[].class);
+//            System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
+            if (user != null && user.length >= 1) {
+                try {
+                    return IOUtil.deserialize(user);
+                } catch (IOException | ClassNotFoundException e) {
+                    _log.log(Level.SEVERE, "Unable to deserialize User object.", e);
+                }
+            }
         return null;
     }
 
