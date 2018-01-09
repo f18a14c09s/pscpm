@@ -33,7 +33,9 @@ public class IdentityKeyStoreAdapter {
             NoSuchAlgorithmException,
             CertificateException,
             UnrecoverableKeyException {
-        return filterPrivateKeys(aliasFilter, new Date());
+        return filterPrivateKeys(aliasFilter, null
+//                new Date()
+                        );
     }
 
     public static Map<String, UserCredential> filterPrivateKeys(String aliasFilter, Date minEndDate) throws KeyStoreException,
@@ -103,7 +105,10 @@ public class IdentityKeyStoreAdapter {
             NoSuchAlgorithmException,
             CertificateException,
             UnrecoverableKeyException {
-        return getBasicEncryptionCredential(aliasFilter, new Date());
+        return getBasicEncryptionCredential(aliasFilter
+                ,null
+//                , new Date()
+        );
     }
 
     public static UserCredential getAdvancedSignatureCredential(String aliasFilter) throws KeyStoreException,

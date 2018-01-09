@@ -54,7 +54,7 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
 
     @Id
     @Column(name = "ID",
-           precision=38,scale=0,nullable=false)
+            precision = 38, scale = 0, nullable = false)
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
             generator = "PUB_KEY_ENCRYPTED_SECR_KEY_S")
     private Long id;
@@ -65,15 +65,15 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
      */
     @ManyToOne
     @JoinColumn(name = "OWNER_ID", referencedColumnName = "ID",
-            nullable=false
-//            ,precision=38,scale=0
+            nullable = false
+    //            ,precision=38,scale=0
     )
     private UserEntity owner;
 
     @ManyToOne
     @JoinColumn(name = "SECRET_KEY_ID", referencedColumnName = "ID",
-            nullable=false
-//            ,precision=38,scale=0
+            nullable = false
+    //            ,precision=38,scale=0
     )
     private UserSecretKeyEntity secretKey;
 
@@ -83,7 +83,7 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
      * pair.
      */
     @Column(name = "PUBLIC_KEY_FINGERPRINT",
-            length=1000, nullable=false)
+            length = 1000, nullable = false)
     private String publicKeyFingerprintBase64;
 
     /**
@@ -91,14 +91,14 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
      * stored in PUBLIC_KEY_FINGERPRINT column. Example: SHA-512.
      */
     @Column(name = "PUB_KEY_FPRINT_ALG_SHORT_NAME",
-            length=100, nullable=false)
+            length = 100, nullable = false)
     private String pubKeyFingerprintAlgorithm;
 
     /**
      * The full, base-64 encoded public key. Used to encrypt the symmetric key
      * stored in ENCRYPTED_SYMMETRIC_KEY.
      */
-    @Column(name = "PUBLIC_KEY", nullable=false)
+    @Column(name = "PUBLIC_KEY", nullable = false)
     @Lob
     private String publicKeyBase64;
 
@@ -108,14 +108,14 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
      * in ENCRYPTED_SYMMETRIC_KEY.
      */
     @Column(name = "CRYPTO_INITIALIZATION_VECTOR",
-            length=4000, nullable=false)
+            length = 4000)
     private String cryptoInitVectorBase64;
 
     /**
      * The asymmetric algorithm used to encrypt the key contained herein.
      */
     @Column(name = "ASYMMETRIC_ALGORITHM",
-            length=100, nullable=false)
+            length = 100, nullable = false)
     private String asymmetricAlgorithm;
 
     /**
@@ -123,7 +123,7 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
      * and encoded in base-64.
      */
     @Column(name = "ENCRYPTED_SYMMETRIC_KEY",
-            length=4000, nullable=false)
+            length = 4000, nullable = false)
     private String encryptedSymmetricKeyBase64;
 
     public PublicKeyEncryptedSecretKeyEntity() {
@@ -202,8 +202,15 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
         setEncryptedSymmetricKey(encryptedSymmetricKey);
     }
 
-    public PublicKeyEncryptedSecretKeyEntity(PublicKeyEncryptedSecretKey from) {
-
+    public PublicKeyEncryptedSecretKeyEntity(PublicKeyEncryptedSecretKey from, UserEntity owner, UserSecretKeyEntity secretKey) {
+        setAsymmetricAlgorithm(from.getAsymmetricAlgorithm());
+        setCryptoInitVectorBase64(from.getCryptoInitVectorBase64());
+        setEncryptedSymmetricKeyBase64(from.getEncryptedSymmetricKeyBase64());
+        setOwner(owner);
+        setPubKeyFingerprintAlgorithm(from.getPubKeyFingerprintAlgorithm());
+        setPublicKeyBase64(from.getPublicKeyBase64());
+        setPublicKeyFingerprintBase64(from.getPublicKeyFingerprintBase64());
+        setSecretKey(secretKey);
     }
 
     private void setPublicKeyFingerprintBase64(String publicKeyFingerprintBase64) {
@@ -348,6 +355,6 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
                 getPublicKeyFingerprintBase64());
         retval.setSecretKey(getSecretKey() == null ? null : getSecretKey().toUserSecretKey());
         getSymmetricAlgorithm();
-        return null;
+        return retval;
     }
 }

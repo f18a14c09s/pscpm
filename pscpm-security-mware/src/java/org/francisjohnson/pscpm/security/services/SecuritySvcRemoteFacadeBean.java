@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 
 import java.util.List;
 
@@ -38,7 +39,6 @@ import org.francisjohnson.pscpm.security.data.SecurityPrincipal;
 import org.francisjohnson.pscpm.security.data.User;
 import org.francisjohnson.pscpm.security.services.javacrypto.KeyGeneratorWrapper;
 import org.francisjohnson.pscpm.security.services.javacrypto.KeyEncryptionAdapter;
-import static org.francisjohnson.pscpm.general.services.IOUtil.useArrayListIfNeeded;
 
 /**
  * This facade is remote in the sense that it is accessed remotely by the client
@@ -268,7 +268,7 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
                 = new UserSecretKeyEntity(user, keyAlias, secretKey.getAlgorithm());
         persistUserSecretKey(keyBase);
         PublicKeyEncryptedSecretKeyEntity encryptedKey = new PublicKeyEncryptedSecretKeyEntity(KeyEncryptionAdapter.encrypt(secretKey, user.toUser(),
-                user.getX509Certificate()));
+                user.getX509Certificate()), user, keyBase);
         encryptedKey.setSecretKey(keyBase);
         persistPublicKeyEncryptedSecretKey(encryptedKey);
         return encryptedKey.toPublicKeyEncryptedSecretKey();
@@ -281,8 +281,12 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
 
     @Override
     public <L extends List<PublicKeyEncryptedSecretKey> & Serializable> L findUserSecretKeys() {
-        return (L) useArrayListIfNeeded(em.createNamedQuery("PublicKeyEncryptedSecretKeyEntity.findByOwner").setParameter("owner",
-                getCurrentUser()).getResultList());
+        L retval = (L) new ArrayList<PublicKeyEncryptedSecretKey>();
+        for (PublicKeyEncryptedSecretKeyEntity entity : (List<PublicKeyEncryptedSecretKeyEntity>) em.createNamedQuery("PublicKeyEncryptedSecretKeyEntity.findByOwner").setParameter("owner",
+                getCurrentUserImpl()).getResultList()) {
+            retval.add(entity.toPublicKeyEncryptedSecretKey());
+        }
+        return retval;
     }
 
     @Override
