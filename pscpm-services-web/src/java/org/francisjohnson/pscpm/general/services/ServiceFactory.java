@@ -5,11 +5,9 @@
  */
 package org.francisjohnson.pscpm.general.services;
 
-import javax.ejb.EJB;
 import org.francisjohnson.pscpm.secrets.services.ISecretsService;
-import org.francisjohnson.pscpm.secrets.services.SecretsSvcRemoteFacade;
+import org.francisjohnson.pscpm.secrets.services.SecretsSvcRemoteFacadeBean;
 import org.francisjohnson.pscpm.security.services.ISecurityService;
-import org.francisjohnson.pscpm.security.services.SecuritySvcRemoteFacade;
 import org.francisjohnson.pscpm.security.services.SecuritySvcRemoteFacadeBean;
 
 /**
@@ -17,12 +15,6 @@ import org.francisjohnson.pscpm.security.services.SecuritySvcRemoteFacadeBean;
  * @author fjohnson
  */
 public class ServiceFactory {
-
-//    @EJB
-//    private SecuritySvcRemoteFacade securitySvc = SecuritySvcRemoteFacadeBean.getInstance();
-    @EJB
-    private SecretsSvcRemoteFacade secretsSvc;
-
     public static ServiceFactory getInstance() {
         return new ServiceFactory();
     }
@@ -32,6 +24,6 @@ public class ServiceFactory {
     }
 
     public ISecretsService getSecretsSvc() {
-        return secretsSvc;
+        return SecretsSvcRemoteFacadeBean.getInstance();
     }
 }

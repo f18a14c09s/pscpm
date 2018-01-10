@@ -14,6 +14,6 @@ import javax.ws.rs.core.Application;
  *
  * @author fjohnson
  */
-@ApplicationPath("security")
+@ApplicationPath("")
 public class PscpmSecurityApplication extends Application {
 }

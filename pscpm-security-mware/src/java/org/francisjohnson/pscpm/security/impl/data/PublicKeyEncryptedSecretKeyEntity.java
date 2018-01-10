@@ -213,6 +213,26 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
         setSecretKey(secretKey);
     }
 
+    public PublicKeyEncryptedSecretKeyEntity(PublicKeyEncryptedSecretKey secretKey) {
+        setAsymmetricAlgorithm(
+                secretKey.getAsymmetricAlgorithm());
+        setCryptoInitVectorBase64(
+                secretKey.getCryptoInitVectorBase64());
+        setEncryptedSymmetricKeyBase64(
+                secretKey.getEncryptedSymmetricKeyBase64());
+        setId(
+                secretKey.getId());
+        setOwner(secretKey.getOwner() == null ? null : new UserEntity(secretKey.getOwner()));
+        setPubKeyFingerprintAlgorithm(
+                secretKey.getPubKeyFingerprintAlgorithm());
+        setPublicKeyBase64(
+                secretKey.getPublicKeyBase64());
+        setPublicKeyFingerprintBase64(
+                secretKey.getPublicKeyFingerprintBase64());
+        setSecretKey(secretKey.getSecretKey() == null ? null : new UserSecretKeyEntity(secretKey.getSecretKey()));
+        secretKey.getSymmetricAlgorithm();
+    }
+
     private void setPublicKeyFingerprintBase64(String publicKeyFingerprintBase64) {
         this.publicKeyFingerprintBase64 = publicKeyFingerprintBase64;
     }

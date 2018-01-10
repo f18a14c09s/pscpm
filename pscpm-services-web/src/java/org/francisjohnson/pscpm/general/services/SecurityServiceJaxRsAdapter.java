@@ -29,21 +29,26 @@ import org.francisjohnson.pscpm.security.data.SecurityPrincipal;
 import org.francisjohnson.pscpm.security.data.User;
 import org.francisjohnson.pscpm.security.services.ISecurityService;
 import static org.francisjohnson.pscpm.general.services.IOUtil.serialize;
+import static org.francisjohnson.pscpm.general.services.IOUtil.deserialize;
 import org.francisjohnson.pscpm.security.services.javacrypto.X509Adapter;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 
 /**
  *
  * @author fjohnson
  */
-@Path("")
+@Path("security")
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 @Produces(MediaType.APPLICATION_OCTET_STREAM)
 public class SecurityServiceJaxRsAdapter {
 
     private final ISecurityService security = ServiceFactory.getInstance().getSecuritySvc();
     private final Logger log = Logger.getLogger(getClass().getName());
+    @Context
+    private SecurityContext ctx;
 
     public SecurityServiceJaxRsAdapter() {
     }
@@ -54,6 +59,10 @@ public class SecurityServiceJaxRsAdapter {
 
     private Logger getLog() {
         return log;
+    }
+
+    private SecurityContext getCtx() {
+        return ctx;
     }
 
     @Path("share_key")
@@ -86,9 +95,8 @@ public class SecurityServiceJaxRsAdapter {
 
     @Path("merge_user")
     @POST
-    public byte[] mergeUser(@FormParam("user_to_merge") String base64EncodedUser) //            throws IOException 
-    {
-        User user = null;
+    public byte[] mergeUser(@FormParam("user_to_merge") String base64EncodedUser) throws IOException, ClassNotFoundException {
+        User user = deserialize(Base64.getDecoder().decode(base64EncodedUser));
         user = getSecurity().mergeUser(user);
         if (user == null) {
             return new byte[0];
@@ -158,7 +166,6 @@ public class SecurityServiceJaxRsAdapter {
      */
     @Path("new_secret_key")
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public byte[] newSecretKey(@FormParam("key_alias") String keyAlias) //            throws NoSuchAlgorithmException,
     //            NoSuchPaddingException,
     //            InvalidKeyException,
@@ -212,6 +219,18 @@ public class SecurityServiceJaxRsAdapter {
         } catch (IOException e) {
             getLog().log(Level.SEVERE, "Failed to get the current user.", e);
             return new byte[0];
+        }
+    }
+
+    @Path("whoami")
+    @GET
+    @Consumes(MediaType.WILDCARD)
+    public String whoAmI() {
+        try {
+            return getCtx().getUserPrincipal().getName();
+        } catch (Exception e) {
+            getLog().log(Level.SEVERE, "Unable to determine who the current principal is.", e);
+            return null;
         }
     }
 }

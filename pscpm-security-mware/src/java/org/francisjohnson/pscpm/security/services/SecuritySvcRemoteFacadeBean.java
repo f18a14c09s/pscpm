@@ -9,6 +9,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 
@@ -58,7 +59,13 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
     @Resource
     private SessionContext sess;
 
+    private final Logger _log = Logger.getLogger(getClass().getName());
+
     public SecuritySvcRemoteFacadeBean() {
+    }
+
+    private Logger getLog() {
+        return _log;
     }
 
     public static ISecurityService getInstance() {
@@ -175,7 +182,7 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
         }
     }
 
-    private UserEntity getCurrentUserImpl() {
+    public UserEntity getCurrentUserImpl() {
         try {
             return (UserEntity) em.createNamedQuery("UserEntity.findByUserId").setParameter("userid",
                     sess.getCallerPrincipal().getName()).getSingleResult();
@@ -188,10 +195,13 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
     public User mergeUser(User user) {
         if (user != null && getCurrentUser() != null
                 && user.getId().equals(getCurrentUser().getId())) {
-            return em.merge(user);
+            UserEntity entity = new UserEntity(user);
+            return em.merge(entity).toUser();
         }
         // TODO: Throw an exception.
-        System.err.print("Cannot update other users' profiles.");
+        getLog().warning(String.format("Cannot update other users' profiles: Requestor=%s, User=%s.", getCurrentUser() == null ? "Unknown" : getCurrentUser().getUserId(),
+                user == null ? "Not Specified" : user.getUserId()
+        ));
         return null;
     }
 
@@ -200,7 +210,7 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
             NoSuchAlgorithmException {
         SecurityPrincipalEntity principal = null;
         if (cert != null) {
-            System.out.println("Principal: "
+            getLog().fine("Principal: "
                     + cert.getSubjectX500Principal().getName());
             principal = new SecurityPrincipalEntity(null, cert);
             try {
@@ -218,7 +228,7 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
     public User authenticate(X509Certificate cert) throws CertificateEncodingException,
             NoSuchAlgorithmException,
             NonUniqueResultException {
-//        System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
+//        getLog().fine(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
         UserEntity retval = null;
         if (cert != null) {
             SecurityPrincipalEntity principal = null;
@@ -227,7 +237,7 @@ public class SecuritySvcRemoteFacadeBean implements ISecurityService,
                     = new SecurityPrincipalEntity(sess.getCallerPrincipal().getName(),
                             cert);
             SecurityPrincipalEntity match = findPrincipal(userId);
-//            System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Security Principal Found?: " + match + "."));
+//            getLog().fine(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Security Principal Found?: " + match + "."));
             if (match == null) {
                 persistPrincipal(principal);
             } else if (match instanceof UserEntity) {

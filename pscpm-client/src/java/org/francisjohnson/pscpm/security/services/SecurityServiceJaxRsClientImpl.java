@@ -7,6 +7,7 @@ package org.francisjohnson.pscpm.security.services;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -25,6 +26,7 @@ import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
 import org.francisjohnson.pscpm.security.services.javacrypto.IdentityKeyStoreAdapter;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import org.francisjohnson.pscpm.general.services.ServiceFacade;
 
 /**
  *
@@ -32,8 +34,37 @@ import java.util.logging.Level;
  */
 public class SecurityServiceJaxRsClientImpl implements ISecurityService {
 
-    private final String _baseUrl = "http://localhost:8080/pscpm-services-web/security";
+    private String _baseUrl;
     private final Logger _log = Logger.getLogger(getClass().getName());
+    private KeyStore _keyStore;
+
+    public SecurityServiceJaxRsClientImpl() {
+    }
+
+    public SecurityServiceJaxRsClientImpl(KeyStore keyStore, String serverUrl) {
+        setKeyStore(keyStore);
+        setBaseUrl(serverUrl + "/security");
+    }
+
+    private Client getDefaultClient() {
+        return ClientBuilder.newBuilder().keyStore(getKeyStore(), "Ignore Password").build();
+    }
+
+    private KeyStore getKeyStore() {
+        return _keyStore;
+    }
+
+    private void setKeyStore(KeyStore keyStore) {
+        this._keyStore = keyStore;
+    }
+
+    private String getBaseUrl() {
+        return _baseUrl;
+    }
+
+    private void setBaseUrl(String baseUrl) {
+        this._baseUrl = baseUrl;
+    }
 
     @Override
     public User authenticate(X509Certificate cert) throws CertificateEncodingException {
@@ -41,8 +72,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         if (cert != null) {
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.add("user_cert", Base64.getEncoder().encodeToString(cert.getEncoded()));
-            Client client = ClientBuilder.newClient();
-            byte[] retvalAB = client.target(_baseUrl + "/authenticate")
+            byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/authenticate")
                     .request()
                     .post(Entity.form(formData), byte[].class);
 //            System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
@@ -62,8 +92,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         if (cert != null) {
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.add("user_cert", Base64.getEncoder().encodeToString(cert.getEncoded()));
-            Client client = ClientBuilder.newClient();
-            byte[] retvalAB = client.target(_baseUrl + "/find_principal")
+            byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/find_principal")
                     .request()
                     .post(Entity.form(formData), byte[].class);
             if (retvalAB != null && retvalAB.length >= 1) {
@@ -82,8 +111,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         if (keyAlias != null) {
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.add("key_alias", keyAlias);
-            Client client = ClientBuilder.newClient();
-            byte[] retvalAB = client.target(_baseUrl + "/new_secret_key")
+            byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/new_secret_key")
                     .request()
                     .post(Entity.form(formData), byte[].class);
             if (retvalAB != null && retvalAB.length >= 1) {
@@ -108,8 +136,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
                 _log.log(Level.SEVERE, "Failed to prepare request parameters.", e);
                 return;
             }
-            Client client = ClientBuilder.newClient();
-            client.target(_baseUrl + "/share_key")
+            getDefaultClient().target(getBaseUrl() + "/share_key")
                     .request()
                     .post(Entity.form(formData), Object.class);
         }
@@ -117,8 +144,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
 
     @Override
     public <L extends List<PublicKeyEncryptedSecretKey> & Serializable> L findUserSecretKeys() {
-        Client client = ClientBuilder.newClient();
-        byte[] retvalAB = client.target(_baseUrl + "/find_user_secret_keys")
+        byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/find_user_secret_keys")
                 .request()
                 .get(byte[].class);
         if (retvalAB != null && retvalAB.length >= 1) {
@@ -134,8 +160,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
     @Override
     public User getCurrentUser() {
 //        System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
-        Client client = ClientBuilder.newClient();
-        byte[] retvalAB = client.target(_baseUrl + "/get_current_user")
+        byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/get_current_user")
                 .request()
                 .get(byte[].class);
 //            System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
@@ -154,8 +179,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         if (cert != null) {
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.add("cert_to_set", Base64.getEncoder().encodeToString(cert.getEncoded()));
-            Client client = ClientBuilder.newClient();
-            client.target(_baseUrl + "/set_user_cert")
+            getDefaultClient().target(getBaseUrl() + "/set_user_cert")
                     .request()
                     .post(Entity.form(formData), String.class);
         }
@@ -171,8 +195,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
                 _log.log(Level.SEVERE, "Failed to prepare request parameters.", e);
                 return null;
             }
-            Client client = ClientBuilder.newClient();
-            byte[] retvalAB = client.target(_baseUrl + "/merge_user")
+            byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/merge_user")
                     .request()
                     .post(Entity.form(formData), byte[].class);
             if (retvalAB != null && retvalAB.length >= 1) {
@@ -186,11 +209,28 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         return null;
     }
 
+//set MYCP=C:\Users\fjohnson\Documents\NetBeansProjects\PSCPM\pscpm-client\build\jar
+//set MYCP=%MYCP%;C:\Users\fjohnson\Documents\NetBeansProjects\PSCPM\pscpm-common\build\jar
+//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jaxrs-2.0\javax.ws.rs-api-2.0.jar
+//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jersey2\jersey-client.jar
+//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jersey2\jersey-common.jar
+//set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-utils.jar
+//set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-api.jar
+//set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-core.jar
+//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\ide\modules\com-google-guava.jar
+//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\ide\modules\com-googlecode-javaewah-JavaEWAH.jar
+//set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\jersey-hk2.jar
+//set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-config.jar
+//set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2.jar
+//set MYCP=%MYCP%;C:\Users\fjohnson\Documents\NetBeansProjects\PSCPM\pscpm-client\build\jar
+//set MYCP=%MYCP%;C:\Users\fjohnson\Documents\NetBeansProjects\PSCPM\pscpm-common\build\jar
+//
+//java -cp "%MYCP%" org.francisjohnson.pscpm.security.services.SecurityServiceJaxRsClientImpl
 //set MYCP=C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jaxrs-2.0\javax.ws.rs-api-2.0.jar
 //set MYCP=%MYCP%;C:\Users\fjohnson\Documents\NetBeansProjects\PSCPM\pscpm-client\dist\pscpm-client.jar
 //set MYCP=%MYCP%;c:\Users\fjohnson\Documents\NetBeansProjects\PSCPM\pscpm-common\dist\pscpm-common.jar
 //set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jersey2\jersey-client.jar
-//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jersey2\jersey-common.jar;
+//set MYCP=%MYCP%;C:\Program Files\NetBeans 8.2\enterprise\modules\ext\jersey2\jersey-common.jar
 //set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-utils.jar
 //set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-api.jar
 //set MYCP=%MYCP%;C:\Program Files\glassfish-5.0\glassfish\modules\hk2-core.jar
@@ -205,9 +245,9 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         try {
             Calendar cal = Calendar.getInstance();
             cal.set(2017, 1, 1);
-            UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential("Francis Johnson");
+            UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential("JOHNSON.FRANCIS.D.1281815233");
             X509Certificate cert = cred.getCert();
-            SecurityServiceJaxRsClientImpl svc = new SecurityServiceJaxRsClientImpl();
+            ISecurityService svc = new SecurityServiceJaxRsClientImpl(cred.getKeyStore(), ServiceFacade.DEFAULT_SERVER_URL);
             User user = svc.authenticate(cert);
             System.out.println("authenticate(): " + user + ".");
             user = svc.getCurrentUser();
@@ -217,11 +257,10 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
             user = svc.mergeUser(user);
             System.out.println("mergeUser(): " + user + ".");
             svc.setUserCertificate(cert);
-            PublicKeyEncryptedSecretKey secretKey = svc.newSecretKey("Hello World!  "+System.currentTimeMillis());
+            PublicKeyEncryptedSecretKey secretKey = svc.newSecretKey("Hello World!  " + System.currentTimeMillis());
             System.out.println("newSecretKey(): " + secretKey + ".");
             List<PublicKeyEncryptedSecretKey> secretKeys = svc.findUserSecretKeys();
             System.out.println("findUserSecretKeys(): " + secretKeys + ".");
-//            UserCredential sigCred = IdentityKeyStoreAdapter.getAdvancedSignatureCredential("Francis Johnson");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

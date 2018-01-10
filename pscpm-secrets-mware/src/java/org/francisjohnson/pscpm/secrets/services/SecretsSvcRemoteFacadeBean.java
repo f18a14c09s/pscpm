@@ -1,16 +1,21 @@
 package org.francisjohnson.pscpm.secrets.services;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.francisjohnson.pscpm.secrets.data.Certificate;
 import org.francisjohnson.pscpm.secrets.data.CertificateSecret;
 import org.francisjohnson.pscpm.secrets.data.Secret;
+import org.francisjohnson.pscpm.secrets.data.Server;
 import org.francisjohnson.pscpm.secrets.data.ServerSecret;
 
 import org.francisjohnson.pscpm.secrets.impl.data.CertificateSecretEntity;
@@ -36,7 +41,21 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
     @EJB
     private SecuritySvcRemoteFacade security;
 
+    private final Logger _log = Logger.getLogger(getClass().getName());
+
     public SecretsSvcRemoteFacadeBean() {
+    }
+
+    private Logger getLog() {
+        return _log;
+    }
+
+    public static ISecretsService getInstance() {
+        try {
+            return (ISecretsService) new InitialContext().lookup(SecretsSvcRemoteFacadeBean.class.getAnnotation(Stateless.class).mappedName() + "#" + SecretsSvcRemoteFacade.class.getName());
+        } catch (NamingException e) {
+            return null;
+        }
     }
 
     private Object queryByRange(String jpqlStmt, int firstResult,
@@ -53,19 +72,53 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
 
     @Override
     public <EntityClass> Secret<EntityClass> persistSecret(Secret<EntityClass> secret) {
-        em.persist(secret);
-        return secret;
+        if (secret != null) {
+            SecretEntity<EntityClass> entity = null;
+            if (secret instanceof ServerSecret) {
+                entity = (SecretEntity<EntityClass>) new ServerSecretEntity((Secret<Server>)secret);
+            } else if (secret instanceof CertificateSecret) {
+                entity = (SecretEntity<EntityClass>) new CertificateSecretEntity((Secret<Certificate>)secret);
+            } else {
+                getLog().severe(String.format("Secret implementation %s not currently supported.", secret.getClass().getSimpleName()));
+                return null;
+            }
+            em.persist(entity);
+            return entity.toSecret();
+        }
+        return null;
     }
 
     @Override
     public <EntityClass> Secret<EntityClass> mergeSecret(Secret<EntityClass> secret) {
-        return em.merge(secret);
+        if (secret != null) {
+            SecretEntity<EntityClass> entity = null;
+            if (secret instanceof ServerSecret) {
+                entity = (SecretEntity<EntityClass>) new ServerSecretEntity((Secret<Server>)secret);
+            } else if (secret instanceof CertificateSecret) {
+                entity = (SecretEntity<EntityClass>) new CertificateSecretEntity((Secret<Certificate>)secret);
+            } else {
+                getLog().severe(String.format("Secret implementation %s not currently supported.", secret.getClass().getSimpleName()));
+                return null;
+            }
+            return em.merge(entity).toSecret();
+        }
+        return null;
     }
 
     @Override
     public void removeSecret(Secret<?> secret) {
-        SecretEntity entity = em.find(SecretEntity.class, secret.getId());
-        em.remove(entity);
+        if (secret != null) {
+            SecretEntity<?> entity = null;
+            if (secret instanceof ServerSecret) {
+                entity = (SecretEntity<?>) new ServerSecretEntity((Secret<Server>)secret);
+            } else if (secret instanceof CertificateSecret) {
+                entity = (SecretEntity<?>) new CertificateSecretEntity((Secret<Certificate>)secret);
+            } else {
+                getLog().severe(String.format("Secret implementation %s not currently supported.", secret.getClass().getSimpleName()));
+                return;
+            }
+            em.remove(entity);
+        }
     }
 
     @Override
@@ -90,7 +143,7 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
     @Override
     public List<ServerSecret> findAvailableServerSecrets() {
         return em.createNamedQuery("ServerSecretEntity.findByUser").setParameter("user",
-                security.getCurrentUser()).getResultList();
+                security.getCurrentUserImpl()).getResultList();
     }
 
     @Override

@@ -65,7 +65,7 @@ public abstract class Secret<EntityClass> implements Serializable,
         this.id = id;
     }
 
-    protected Long getVersion() {
+    public Long getVersion() {
         return version;
     }
 

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import org.francisjohnson.pscpm.secrets.data.Secret;
 import org.francisjohnson.pscpm.secrets.data.Server;
 import org.francisjohnson.pscpm.secrets.data.ServerSecret;
 
@@ -44,6 +45,14 @@ public class ServerSecretEntity extends SecretEntity<Server> implements Serializ
     public ServerSecretEntity(Server data, UserSecretKeyEntity secretKey) {
         setData(data);
         setSecretKey(secretKey);
+    }
+
+    public ServerSecretEntity(Secret<Server> secret) {
+        setData(secret.getData());
+        setEncryptedData(secret.getEncryptedData());
+        setId(secret.getId());
+        setSecretKey(new UserSecretKeyEntity(secret.getSecretKey()));
+        setVersion(secret.getVersion());
     }
 
     public Server getServer() {

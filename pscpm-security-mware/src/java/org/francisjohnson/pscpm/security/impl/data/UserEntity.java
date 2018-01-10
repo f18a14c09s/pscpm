@@ -39,6 +39,26 @@ public class UserEntity extends SecurityPrincipalEntity implements Serializable 
     public UserEntity() {
     }
 
+    public UserEntity(User user) {
+        setDefaultSecretKey(user.getDefaultSecretKey() == null ? null : new PublicKeyEncryptedSecretKeyEntity(user.getDefaultSecretKey()));
+        setUserId(user.getUserId());
+        setX509CertificateEncoded(user.getX509CertificateEncoded());
+        setCachedDisplayName(
+                user.getCachedDisplayName());
+        setCachedFriendlyName(
+                user.getCachedFriendlyName());
+        setCachedPubKeyFprintBase64(
+                user.getCachedPubKeyFprintBase64());
+        setId(
+                user.getId());
+        setPublicKeyFingerprintAlgorithm(
+                user.getPublicKeyFingerprintAlgorithm());
+        setType(
+                user.getType());
+        setUserId(
+                user.getUserId());
+    }
+
     //    public User(X509Certificate cert) throws CertificateEncodingException,
     //                                             NoSuchAlgorithmException {
     //        super(cert);

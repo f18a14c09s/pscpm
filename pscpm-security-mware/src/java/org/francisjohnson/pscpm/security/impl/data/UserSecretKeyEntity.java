@@ -38,12 +38,12 @@ public class UserSecretKeyEntity implements Serializable, Identifiable<Long> {
     private static final long serialVersionUID = 1;
 
     @Id
-    @Column(name = "ID", nullable=false,precision=38,scale=0)
+    @Column(name = "ID", nullable = false, precision = 38, scale = 0)
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
             generator = "USER_SECRET_KEY_ID_S")
     private Long id;
 
-    @Column(name = "ALIAS", length=1000, nullable=false,
+    @Column(name = "ALIAS", length = 1000, nullable = false,
             unique = true)
     private String alias;
 
@@ -52,7 +52,7 @@ public class UserSecretKeyEntity implements Serializable, Identifiable<Long> {
      * stored in ENCRYPTED_SYMMETRIC_KEY column, is used. Example: AES.
      */
     @Column(name = "SYMMETRIC_ALGORITHM",
-            length=100, nullable=false)
+            length = 100, nullable = false)
     private String symmetricAlgorithm;
 
     /**
@@ -62,8 +62,8 @@ public class UserSecretKeyEntity implements Serializable, Identifiable<Long> {
      */
     @ManyToOne
     @JoinColumn(name = "OWNER_ID", referencedColumnName = "ID",
-            nullable=false
-//    ,precision=38,scale=0
+            nullable = false
+    //    ,precision=38,scale=0
     )
     private UserEntity owner;
 
@@ -79,6 +79,17 @@ public class UserSecretKeyEntity implements Serializable, Identifiable<Long> {
         setOwner(owner);
         setAlias(keyAlias);
         setSymmetricAlgorithm(symmetricAlgorithm);
+    }
+
+    public UserSecretKeyEntity(UserSecretKey secretKey) {
+        setAlias(
+                secretKey.getAlias());
+        setId(
+                secretKey.getId());
+        setOwner(
+                secretKey.getOwner() == null ? null : new UserEntity(secretKey.getOwner()));
+        setSymmetricAlgorithm(
+                secretKey.getSymmetricAlgorithm());
     }
 
     public Long getId() {

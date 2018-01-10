@@ -151,11 +151,11 @@ public class SecurityPrincipalEntity implements Serializable, Identifiable<Long>
         return id;
     }
 
-    private void setId(Long id) {
+    protected void setId(Long id) {
         this.id = id;
     }
 
-    private void setCachedFriendlyName(String cachedFriendlyName) {
+    protected void setCachedFriendlyName(String cachedFriendlyName) {
         this.cachedFriendlyName = cachedFriendlyName;
     }
 
@@ -163,7 +163,7 @@ public class SecurityPrincipalEntity implements Serializable, Identifiable<Long>
         return cachedFriendlyName;
     }
 
-    private void setCachedDisplayName(String cachedDisplayName) {
+    protected void setCachedDisplayName(String cachedDisplayName) {
         this.cachedDisplayName = cachedDisplayName;
     }
 
@@ -171,7 +171,7 @@ public class SecurityPrincipalEntity implements Serializable, Identifiable<Long>
         return cachedDisplayName;
     }
 
-    private void setX509CertificateEncoded(byte[] x509CertificateEncoded) {
+    protected void setX509CertificateEncoded(byte[] x509CertificateEncoded) {
         this.x509CertificateEncoded = x509CertificateEncoded;
     }
 
@@ -229,7 +229,7 @@ public class SecurityPrincipalEntity implements Serializable, Identifiable<Long>
         return logger;
     }
 
-    private void setType(String type) {
+    protected void setType(String type) {
         this.type = type;
     }
 
@@ -237,7 +237,7 @@ public class SecurityPrincipalEntity implements Serializable, Identifiable<Long>
         return type;
     }
 
-    private void setCachedPubKeyFprintBase64(String cachedPubKeyFprintBase64) {
+    protected void setCachedPubKeyFprintBase64(String cachedPubKeyFprintBase64) {
         this.cachedPubKeyFprintBase64 = cachedPubKeyFprintBase64;
     }
 
@@ -245,7 +245,7 @@ public class SecurityPrincipalEntity implements Serializable, Identifiable<Long>
         return cachedPubKeyFprintBase64;
     }
 
-    private void setPublicKeyFingerprintAlgorithm(String publicKeyFingerprintAlgorithm) {
+    protected void setPublicKeyFingerprintAlgorithm(String publicKeyFingerprintAlgorithm) {
         this.publicKeyFingerprintAlgorithm = publicKeyFingerprintAlgorithm;
     }
 

@@ -8,19 +8,18 @@ import java.security.cert.X509Certificate;
 
 import java.util.Base64;
 
-
 import org.francisjohnson.pscpm.general.data.Identifiable;
 import org.francisjohnson.pscpm.security.services.javacrypto.PublicKeyFingerprinter;
 
-
 /**
  * TODO: Ensure that the underlying database table is kept internal and not
- * readable.  This is a way to prevent users from re-sharing secret keys shared
- * by others.
- * TODO: See if any of the fields should move to UserSecretKey entity.
+ * readable. This is a way to prevent users from re-sharing secret keys shared
+ * by others. TODO: See if any of the fields should move to UserSecretKey
+ * entity.
  */
 public class PublicKeyEncryptedSecretKey implements Serializable,
-                                                    Identifiable<Long>,IPublicKeyEncryptedKey {
+        Identifiable<Long>, IPublicKeyEncryptedKey {
+
     /**
      * This value must not change, or else the data in the cache will become
      * invalid.
@@ -30,7 +29,7 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
     private Long id;
 
     /**
-     * This is the owner of this encrypted copy of the secret key.  This owner
+     * This is the owner of this encrypted copy of the secret key. This owner
      * does not decide whether to share the encrypted key with others.
      */
     private User owner;
@@ -38,7 +37,7 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
     private UserSecretKey secretKey;
 
     /**
-     * Base-64 encoded, (asymmetric) public key fingerprint.  Used to more
+     * Base-64 encoded, (asymmetric) public key fingerprint. Used to more
      * concisely identify the public key when matching its public-private key
      * pair.
      */
@@ -46,18 +45,18 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
 
     /**
      * Identifies the hashing algorithm that produced the public key fingerprint
-     * stored in PUBLIC_KEY_FINGERPRINT column.  Example: SHA-512.
+     * stored in PUBLIC_KEY_FINGERPRINT column. Example: SHA-512.
      */
     private String pubKeyFingerprintAlgorithm;
 
     /**
-     * The full, base-64 encoded public key.  Used to encrypt the symmetric key
+     * The full, base-64 encoded public key. Used to encrypt the symmetric key
      * stored in ENCRYPTED_SYMMETRIC_KEY.
      */
     private String publicKeyBase64;
 
     /**
-     * Optional depending on the cryptographic algorithm used.  The base-64
+     * Optional depending on the cryptographic algorithm used. The base-64
      * encoded, initialization vector used to encrypt the symmetric key stored
      * in ENCRYPTED_SYMMETRIC_KEY.
      */
@@ -106,7 +105,6 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
     //        setEncryptedSymmetricKey(encryptedSymmetricKey);
     //        setSymmetricAlgorithm(symmetricAlgorithm);
     //    }
-
     //    public PublicKeyEncryptedSecretKey(User owner, X509Certificate cryptoCert,
     //                                       byte[] cryptoInitVector,
     //                                       String asymmetricAlgorithm,
@@ -124,12 +122,11 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
     //        setEncryptedSymmetricKey(encryptedSymmetricKey);
     //        setSymmetricAlgorithm(symmetricAlgorithm);
     //    }
-
     public PublicKeyEncryptedSecretKey(User owner, X509Certificate cryptoCert,
-                                       byte[] cryptoInitVector,
-                                       String asymmetricAlgorithm,
-                                       byte[] encryptedSymmetricKey) throws CertificateException,
-                                                                            NoSuchAlgorithmException {
+            byte[] cryptoInitVector,
+            String asymmetricAlgorithm,
+            byte[] encryptedSymmetricKey) throws CertificateException,
+            NoSuchAlgorithmException {
         setOwner(owner);
         setPublicKeyFingerprint(PublicKeyFingerprinter.computePublicKeyFingerprint(cryptoCert.getPublicKey()));
         setPubKeyFingerprintAlgorithm(PublicKeyFingerprinter.DEFAULT_FINGERPRINT_ALGORITHM);
@@ -140,10 +137,10 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
     }
 
     public PublicKeyEncryptedSecretKey(X509Certificate cryptoCert,
-                                       byte[] cryptoInitVector,
-                                       String asymmetricAlgorithm,
-                                       byte[] encryptedSymmetricKey) throws CertificateException,
-                                                                            NoSuchAlgorithmException {
+            byte[] cryptoInitVector,
+            String asymmetricAlgorithm,
+            byte[] encryptedSymmetricKey) throws CertificateException,
+            NoSuchAlgorithmException {
         setPublicKeyFingerprint(PublicKeyFingerprinter.computePublicKeyFingerprint(cryptoCert.getPublicKey()));
         setPubKeyFingerprintAlgorithm(PublicKeyFingerprinter.DEFAULT_FINGERPRINT_ALGORITHM);
         setPublicKey(cryptoCert.getPublicKey().getEncoded());
@@ -195,53 +192,52 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
     //    private void setSymmetricAlgorithm(String symmetricAlgorithm) {
     //        this.symmetricAlgorithm = symmetricAlgorithm;
     //    }
-
     public String getSymmetricAlgorithm() {
-        return getSecretKey() == null ? null :
-               getSecretKey().getSymmetricAlgorithm();
+        return getSecretKey() == null ? null
+                : getSecretKey().getSymmetricAlgorithm();
     }
 
     public byte[] getCryptoInitVector() {
-        return getCryptoInitVectorBase64() == null ||
-               getCryptoInitVectorBase64().isEmpty() ? null :
-               Base64.getDecoder().decode(getCryptoInitVectorBase64());
+        return getCryptoInitVectorBase64() == null
+                || getCryptoInitVectorBase64().isEmpty() ? null
+                : Base64.getDecoder().decode(getCryptoInitVectorBase64());
     }
 
     public byte[] getEncryptedSymmetricKey() {
-        return getEncryptedSymmetricKeyBase64() == null ||
-               getEncryptedSymmetricKeyBase64().isEmpty() ? null :
-               Base64.getDecoder().decode(getEncryptedSymmetricKeyBase64());
+        return getEncryptedSymmetricKeyBase64() == null
+                || getEncryptedSymmetricKeyBase64().isEmpty() ? null
+                : Base64.getDecoder().decode(getEncryptedSymmetricKeyBase64());
     }
 
     public byte[] getPublicKey() {
-        return getPublicKeyBase64() == null || getPublicKeyBase64().isEmpty() ?
-               null : Base64.getDecoder().decode(getPublicKeyBase64());
+        return getPublicKeyBase64() == null || getPublicKeyBase64().isEmpty()
+                ? null : Base64.getDecoder().decode(getPublicKeyBase64());
     }
 
     public byte[] getPublicKeyFingerprint() {
-        return getPublicKeyFingerprintBase64() == null ||
-               getPublicKeyFingerprintBase64().isEmpty() ? null :
-               Base64.getDecoder().decode(getPublicKeyFingerprintBase64());
+        return getPublicKeyFingerprintBase64() == null
+                || getPublicKeyFingerprintBase64().isEmpty() ? null
+                : Base64.getDecoder().decode(getPublicKeyFingerprintBase64());
     }
 
     private void setCryptoInitVector(byte[] cryptoInitVector) {
-        setCryptoInitVectorBase64(cryptoInitVector == null ? null :
-                                  Base64.getEncoder().encodeToString(cryptoInitVector));
+        setCryptoInitVectorBase64(cryptoInitVector == null ? null
+                : Base64.getEncoder().encodeToString(cryptoInitVector));
     }
 
     private void setEncryptedSymmetricKey(byte[] encryptedSymmetricKey) {
-        setEncryptedSymmetricKeyBase64(encryptedSymmetricKey == null ? null :
-                                       Base64.getEncoder().encodeToString(encryptedSymmetricKey));
+        setEncryptedSymmetricKeyBase64(encryptedSymmetricKey == null ? null
+                : Base64.getEncoder().encodeToString(encryptedSymmetricKey));
     }
 
     private void setPublicKey(byte[] publicKey) {
-        setPublicKeyBase64(publicKey == null ? null :
-                           Base64.getEncoder().encodeToString(publicKey));
+        setPublicKeyBase64(publicKey == null ? null
+                : Base64.getEncoder().encodeToString(publicKey));
     }
 
     private void setPublicKeyFingerprint(byte[] publicKeyFingerprint) {
-        setPublicKeyFingerprintBase64(publicKeyFingerprint == null ? null :
-                                      Base64.getEncoder().encodeToString(publicKeyFingerprint));
+        setPublicKeyFingerprintBase64(publicKeyFingerprint == null ? null
+                : Base64.getEncoder().encodeToString(publicKeyFingerprint));
     }
 
     public void setAsymmetricAlgorithm(String asymmetricAlgorithm) {
@@ -274,5 +270,10 @@ public class PublicKeyEncryptedSecretKey implements Serializable,
 
     public UserSecretKey getSecretKey() {
         return secretKey;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (ID=%s)", getClass().getSimpleName(), getId());
     }
 }

@@ -9,6 +9,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import org.francisjohnson.pscpm.secrets.data.Certificate;
 import org.francisjohnson.pscpm.secrets.data.CertificateSecret;
+import org.francisjohnson.pscpm.secrets.data.Secret;
 
 import org.francisjohnson.pscpm.security.impl.data.UserSecretKeyEntity;
 
@@ -27,6 +28,14 @@ public class CertificateSecretEntity extends SecretEntity<Certificate> implement
     private static final long serialVersionUID = 1;
 
     public CertificateSecretEntity() {
+    }
+
+    public CertificateSecretEntity(Secret<Certificate> secret) {
+        setData(secret.getData());
+        setEncryptedData(secret.getEncryptedData());
+        setId(secret.getId());
+        setSecretKey(new UserSecretKeyEntity(secret.getSecretKey()));
+        setVersion(secret.getVersion());
     }
 
     public CertificateSecretEntity(byte[] encryptedData, UserSecretKeyEntity secretKey,

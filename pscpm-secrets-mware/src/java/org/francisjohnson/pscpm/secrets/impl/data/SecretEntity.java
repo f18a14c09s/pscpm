@@ -52,8 +52,8 @@ public abstract class SecretEntity<EntityClass> implements Serializable,
     private Long version;
     @ManyToOne
     @JoinColumn(name = "SECRET_KEY_ID", referencedColumnName = "ID",
-            nullable=false
-//    ,precision=38,scale=0
+            nullable = false
+    //    ,precision=38,scale=0
     )
     private UserSecretKeyEntity secretKey;
 
@@ -63,7 +63,7 @@ public abstract class SecretEntity<EntityClass> implements Serializable,
      * ENCRYPTED_DATA.
      */
     @Column(name = "CIPHER_INITIALIZATION_VECTOR",
-            length=4000, nullable=false)
+            length = 4000)
     private String cipherInitVectorBase64;
 
     @Column(name = "ENCRYPTED_DATA", nullable = false)
@@ -74,7 +74,7 @@ public abstract class SecretEntity<EntityClass> implements Serializable,
      * stored in ENCRYPTED_SYMMETRIC_KEY column, is used. Example: AES.
      */
     @Column(name = "CIPHER_TRANSFORMATION",
-            length=100, nullable=false)
+            length = 100, nullable = false)
     private String cipherTransformation;
     @Transient
     private transient EntityClass data;

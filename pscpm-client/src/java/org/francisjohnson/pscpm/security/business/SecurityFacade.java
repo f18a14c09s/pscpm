@@ -55,13 +55,6 @@ public class SecurityFacade {
                                                                                       providerUrl,
                                                                                       cred).newFacade());
             setOfflineUser(null);
-        } catch (CommunicationException e) {
-            setOfflineUser(getOfflineUser() == null ? new OfflineUser() :
-                           getOfflineUser());
-            String userErrorMessage =
-                "Unable to reach the server.  Working offline.";
-            getLogger().log(Level.FINE, userErrorMessage, e);
-            getLogger().severe(userErrorMessage);
         } catch (Exception e) {
             throw new SecurityException("Unable to contact security service.",
                                         e);

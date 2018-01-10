@@ -31,8 +31,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import org.francisjohnson.pscpm.general.services.ServiceFacade;
 
-import org.francisjohnson.pscpm.general.services.weblogic.WLSRMISunMSCAPIFacade;
 import org.francisjohnson.pscpm.secrets.business.SecretsFacade;
 import org.francisjohnson.pscpm.secrets.presentation.PSCPMClientMain;
 import org.francisjohnson.pscpm.secrets.presentation.events.LoginSucceededEvent;
@@ -41,8 +41,8 @@ import org.francisjohnson.pscpm.security.data.User;
 import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
 import org.francisjohnson.pscpm.security.services.javacrypto.IdentityKeyStoreAdapter;
 
-
 public class LoginPanel extends PSCPMPanel {
+
     private GridBagLayout gridBagLayout1 = new GridBagLayout();
     private JPanel loginBox = new JPanel();
     private BorderLayout borderLayout1 = new BorderLayout();
@@ -68,8 +68,8 @@ public class LoginPanel extends PSCPMPanel {
             jbInit();
         } catch (Exception e) {
             PSCPMPanel.handleException(this, "Login UI Unavailable",
-                                       "Unable to access the system's login user interface.",
-                                       null, e);
+                    "Unable to access the system's login user interface.",
+                    null, e);
         }
     }
 
@@ -84,8 +84,8 @@ public class LoginPanel extends PSCPMPanel {
         this.setLayout(gridBagLayout1);
         loginBox.setLayout(borderLayout1);
         loginBox.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY,
-                                                                                           1),
-                                                            "Login:"));
+                1),
+                "Login:"));
         loginHeaderBox.setLayout(flowLayout1);
         loginHeaderBox.setVisible(false);
         loginFieldBox.setLayout(gridLayout1);
@@ -113,9 +113,9 @@ public class LoginPanel extends PSCPMPanel {
         loginFooterBox.add(loginButton, null);
         loginBox.add(loginFooterBox, BorderLayout.SOUTH);
         this.add(loginBox,
-                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-                                        GridBagConstraints.NONE,
-                                        new Insets(0, 0, 0, 0), 0, 0));
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+                        GridBagConstraints.NONE,
+                        new Insets(0, 0, 0, 0), 0, 0));
         selCredLabel.setText("Select a Credential:");
         selCredLabel.setFont(new Font("Arial", 0, 12));
         selCredLabel.setPreferredSize(new Dimension(120, 20));
@@ -126,51 +126,49 @@ public class LoginPanel extends PSCPMPanel {
 
     private void loginButtonInit() {
         loginButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        String dbUrl =
-                            selDbList == null || !(selDbList.getSelectedValue() instanceof
-                                                   String) ? null :
-                            (String)selDbList.getSelectedValue();
-                        UserCredential cred =
-                            selCredList == null || !(selCredList.getSelectedValue() instanceof
-                                                     UserCredential) ? null :
-                            (UserCredential)selCredList.getSelectedValue();
-                        List<String> validationErrors =
-                            new ArrayList<String>();
-                        if (dbUrl == null || dbUrl.isEmpty()) {
-                            validationErrors.add("Please specify a server URL.");
-                        }
-                        if (cred == null) {
-                            validationErrors.add("Please specify a credential.");
-                        }
-                        if (!validationErrors.isEmpty()) {
-                            handleError("Login Cannot Proceed",
-                                        "Error: " + validationErrors + ".");
-                            return;
-                        }
-                        SecretsFacade secrets =
-                            SecretsFacade.startSession(dbUrl, cred);
-                        User me = secrets.getUser();
-                        if (me == null) {
-                            handleError("Login Failed", "Login failed.",
-                                        "The User object is null.");
-                        } else {
-                            if (secrets.isOffline()) {
-                                handleError("Offline Mode",
-                                            "The remote secrets and/or security service(s) is/are inaccessible." +
-                                            "\n\nTherefore this client application is in offline mode." +
-                                            "\n\nAny operations you initiate will occur against the local cache file only.");
-                            }
-                            debug("Login successful!");
-                            getNavigator().navigate(new LoginSucceededEvent(e.getSource(),
-                                                                            secrets));
-                        }
-                    } catch (Exception f) {
-                        handleException("Login Failed", "Login failed.", f);
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String dbUrl
+                            = selDbList == null || !(selDbList.getSelectedValue() instanceof String) ? null
+                            : (String) selDbList.getSelectedValue();
+                    UserCredential cred
+                            = selCredList == null || !(selCredList.getSelectedValue() instanceof UserCredential) ? null
+                            : (UserCredential) selCredList.getSelectedValue();
+                    List<String> validationErrors
+                            = new ArrayList<String>();
+                    if (dbUrl == null || dbUrl.isEmpty()) {
+                        validationErrors.add("Please specify a server URL.");
                     }
+                    if (cred == null) {
+                        validationErrors.add("Please specify a credential.");
+                    }
+                    if (!validationErrors.isEmpty()) {
+                        handleError("Login Cannot Proceed",
+                                "Error: " + validationErrors + ".");
+                        return;
+                    }
+                    SecretsFacade secrets
+                            = SecretsFacade.startSession(dbUrl, cred);
+                    User me = secrets.getUser();
+                    if (me == null) {
+                        handleError("Login Failed", "Login failed.",
+                                "The User object is null.");
+                    } else {
+                        if (secrets.isOffline()) {
+                            handleError("Offline Mode",
+                                    "The remote secrets and/or security service(s) is/are inaccessible."
+                                    + "\n\nTherefore this client application is in offline mode."
+                                    + "\n\nAny operations you initiate will occur against the local cache file only.");
+                        }
+                        debug("Login successful!");
+                        getNavigator().navigate(new LoginSucceededEvent(e.getSource(),
+                                secrets));
+                    }
+                } catch (Exception f) {
+                    handleException("Login Failed", "Login failed.", f);
                 }
-            });
+            }
+        });
     }
 
     private LoginPanel getLoginPanel() {
@@ -178,16 +176,15 @@ public class LoginPanel extends PSCPMPanel {
     }
 
     private static <Compon extends Container> Compon traverse(Container cur,
-                                                              Class<Compon> clazz) {
-        return cur == null ? null :
-               clazz.isAssignableFrom(cur.getClass()) ? (Compon)cur :
-               traverse(cur.getParent(), clazz);
+            Class<Compon> clazz) {
+        return cur == null ? null
+                : clazz.isAssignableFrom(cur.getClass()) ? (Compon) cur
+                : traverse(cur.getParent(), clazz);
     }
 
     private void dbListInit() {
         DefaultListModel<Object> model = new DefaultListModel<Object>();
-        //        model.addElement("https://localhost:7002/pscpm/pscpmEJBservlet");
-        model.addElement(WLSRMISunMSCAPIFacade.DEFAULT_RMI_PROVIDER_URL);
+        model.addElement(ServiceFacade.DEFAULT_SERVER_URL);
         selDbList.setModel(model);
         selDbList.setSelectedIndex(0);
     }
@@ -195,7 +192,7 @@ public class LoginPanel extends PSCPMPanel {
     private void credListInit() {
         DefaultListModel<Object> model = new DefaultListModel<Object>();
         try {
-            model.addElement(IdentityKeyStoreAdapter.getAdvancedSignatureCredential("Francis Johnson"));
+            model.addElement(IdentityKeyStoreAdapter.getAdvancedSignatureCredential("JOHNSON.FRANCIS.D.1281815233"));
         } catch (UnrecoverableKeyException e) {
             handleException(e);
         } catch (CertificateException e) {

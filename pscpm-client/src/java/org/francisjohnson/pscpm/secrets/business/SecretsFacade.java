@@ -32,10 +32,10 @@ import org.francisjohnson.pscpm.security.services.PasswordGenerator;
 import org.francisjohnson.pscpm.security.services.javacrypto.DataDecryptionAdapter;
 import org.francisjohnson.pscpm.security.services.javacrypto.DataEncryptionAdapter;
 
-
 public class SecretsFacade {
-    private Logger logger =
-        Logger.getLogger(this.getClass().getPackage().getName());
+
+    private Logger logger
+            = Logger.getLogger(this.getClass().getPackage().getName());
     private SecureRandom rand = new SecureRandom();
     private String remoteUrl;
     private UserCredential credential;
@@ -50,42 +50,34 @@ public class SecretsFacade {
             setUser(new User(null, credential.getCert()));
         } catch (Exception e) {
             throw new SecretsException("Constructor failed while creating non-persistent user object.",
-                                       e);
+                    e);
         }
         setSecurity(new SecurityFacade());
     }
 
     private SecretsFacade(String remoteUrl,
-                          UserCredential credential) throws SecretsException {
+            UserCredential credential) throws SecretsException {
         super();
         setRemoteUrl(remoteUrl);
         setCredential(credential);
         try {
-            setSecrets((ISecretsService)ServiceFacade.<ISecretsService>getInstance(ISecretsService.class,
-                                                                                   remoteUrl,
-                                                                                   credential).newFacade());
+            setSecrets((ISecretsService) ServiceFacade.<ISecretsService>getInstance(ISecretsService.class,
+                    remoteUrl,
+                    credential).newFacade());
             setSecurity(new SecurityFacade(remoteUrl, credential));
-        } catch (CommunicationException e) {
-            setUser(getUser() instanceof OfflineUser ? getUser() :
-                    new OfflineUser());
-            String userErrorMessage =
-                "Unable to reach the server.  Working offline.";
-            getLogger().log(Level.FINE, userErrorMessage, e);
-            getLogger().severe(userErrorMessage);
         } catch (Exception e) {
             throw new SecretsException("Unable to contact secrets service.",
-                                       e);
+                    e);
         }
     }
 
     // TODO: Decide whether it's a problem to assume that a null user is "offline."
-
     public boolean isOffline() {
         return getUser() instanceof OfflineUser || getUser() == null;
     }
 
     public static SecretsFacade startSession(String remoteUrl,
-                                             UserCredential credential) throws SecretsException {
+            UserCredential credential) throws SecretsException {
         SecretsFacade retval = new SecretsFacade(remoteUrl, credential);
         retval.login();
         return retval;
@@ -123,9 +115,9 @@ public class SecretsFacade {
     //        } finally {
     //        }
     //    }
-
     /**
      * In the CRUD, ABCD, and BREAD lifecycles, this corresponds to delete.
+     *
      * @param secret
      * @throws SecretsException
      */
@@ -174,10 +166,10 @@ public class SecretsFacade {
     //        } finally {
     //        }
     //    }
-
     /**
      * In the CRUD, ABCD, and BREAD lifecycles, this corresponds to update,
      * change, and edit, respectively.
+     *
      * @param serverSecret
      * @return
      * @throws SecretsException
@@ -188,26 +180,26 @@ public class SecretsFacade {
             serverSecret.toString();
             serverSecret.getData().toString();
             serverSecret.getSecretKey().toString();
-            PublicKeyEncryptedSecretKey encryptedKey =
-                findEncryptedKey(serverSecret.getSecretKey());
+            PublicKeyEncryptedSecretKey encryptedKey
+                    = findEncryptedKey(serverSecret.getSecretKey());
             // TODO: Handle the lack of a match directly.
             encryptedKey.toString();
-            ServerSecret managedRecord =
-                isOffline() ? (ServerSecret)serverSecret :
-                getSecrets().findServer(serverSecret.getId());
-            DataEncryptionAdapter.CipherData encryptedData =
-                DataEncryptionAdapter.encrypt(serverSecret.getData(),
-                                              encryptedKey);
+            ServerSecret managedRecord
+                    = isOffline() ? (ServerSecret) serverSecret
+                            : getSecrets().findServer(serverSecret.getId());
+            DataEncryptionAdapter.CipherData encryptedData
+                    = DataEncryptionAdapter.encrypt(serverSecret.getData(),
+                            encryptedKey);
             managedRecord.setEncryptedData(encryptedData.getData(),
-                                           encryptedKey.getSecretKey(),
-                                           encryptedData.getInitVector(),
-                                           encryptedData.getTransformation());
+                    encryptedKey.getSecretKey(),
+                    encryptedData.getInitVector(),
+                    encryptedData.getTransformation());
             if (isOffline()) {
                 FileAndObjectIOAdapter.cache(managedRecord);
                 throw new SecretsException("Currently offline.  Local cache updated, but online Save not available.");
             } else {
-                ServerSecret retval =
-                    (ServerSecret)getSecrets().mergeSecret(managedRecord);
+                ServerSecret retval
+                        = (ServerSecret) getSecrets().mergeSecret(managedRecord);
                 FileAndObjectIOAdapter.cache(managedRecord);
                 retval.setData(decrypt(retval));
                 return retval;
@@ -255,10 +247,9 @@ public class SecretsFacade {
     //        } finally {
     //        }
     //    }
-
     private PublicKeyEncryptedSecretKey findEncryptedKey(UserSecretKey secretKey) throws SecurityException {
-        for (PublicKeyEncryptedSecretKey tempKey :
-             getSecurity().findMySecretKeys()) {
+        for (PublicKeyEncryptedSecretKey tempKey
+                : getSecurity().findMySecretKeys()) {
             if (tempKey.getSecretKey().getId().equals(secretKey.getId())) {
                 return tempKey;
             }
@@ -269,6 +260,7 @@ public class SecretsFacade {
     /**
      * In the CRUD, ABCD, and BREAD lifecycles, this corresponds to create, add
      * and add, respectively.
+     *
      * @param serverSecret
      * @return
      * @throws SecretsException
@@ -279,8 +271,8 @@ public class SecretsFacade {
             serverSecret.toString();
             serverSecret.getData().toString();
             serverSecret.getSecretKey().toString();
-            PublicKeyEncryptedSecretKey encryptedKey =
-                findEncryptedKey(serverSecret.getSecretKey());
+            PublicKeyEncryptedSecretKey encryptedKey
+                    = findEncryptedKey(serverSecret.getSecretKey());
             // TODO: Handle the lack of a match directly.
             encryptedKey.toString();
             //            byte[][] encryptedData =
@@ -288,23 +280,23 @@ public class SecretsFacade {
             //            ServerSecret secret =
             //                new ServerSecret(encryptedData[0], secretKey.getSecretKey(),
             //                                 encryptedData[1]);
-            DataEncryptionAdapter.CipherData encryptedData =
-                DataEncryptionAdapter.encrypt(serverSecret.getData(),
-                                              encryptedKey);
-            ServerSecret managedRecord =
-                new ServerSecret(encryptedData.getData(),
-                                 encryptedKey.getSecretKey(),
-                                 encryptedData.getInitVector(),
-                                 encryptedData.getTransformation());
+            DataEncryptionAdapter.CipherData encryptedData
+                    = DataEncryptionAdapter.encrypt(serverSecret.getData(),
+                            encryptedKey);
+            ServerSecret managedRecord
+                    = new ServerSecret(encryptedData.getData(),
+                            encryptedKey.getSecretKey(),
+                            encryptedData.getInitVector(),
+                            encryptedData.getTransformation());
             if (isOffline()) {
-                managedRecord.setId(managedRecord.getId() == null ?
-                                    getRand().nextLong() :
-                                    managedRecord.getId());
+                managedRecord.setId(managedRecord.getId() == null
+                        ? getRand().nextLong()
+                        : managedRecord.getId());
                 FileAndObjectIOAdapter.cache(managedRecord);
                 throw new SecretsException("Currently offline.  Local cache updated, but online Add not available.");
             } else {
-                ServerSecret retval =
-                    (ServerSecret)getSecrets().persistSecret(managedRecord);
+                ServerSecret retval
+                        = (ServerSecret) getSecrets().persistSecret(managedRecord);
                 FileAndObjectIOAdapter.cache(retval);
                 retval.setData(decrypt(retval));
                 return retval;
@@ -320,24 +312,25 @@ public class SecretsFacade {
     /**
      * In the CRUD, ABCD, and BREAD lifecycles, this corresponds to create, add
      * and add, respectively.
+     *
      * @param cert
      * @param secretKey
      * @return
      * @throws SecretsException
      */
     public Secret<Certificate> add(Certificate cert,
-                                   PublicKeyEncryptedSecretKey secretKey) throws SecretsException {
+            PublicKeyEncryptedSecretKey secretKey) throws SecretsException {
         try {
-            DataEncryptionAdapter.CipherData encryptedData =
-                DataEncryptionAdapter.encrypt(cert, secretKey);
-            CertificateSecret secret =
-                new CertificateSecret(encryptedData.getData(),
-                                      secretKey.getSecretKey(),
-                                      encryptedData.getInitVector(),
-                                      encryptedData.getTransformation());
+            DataEncryptionAdapter.CipherData encryptedData
+                    = DataEncryptionAdapter.encrypt(cert, secretKey);
+            CertificateSecret secret
+                    = new CertificateSecret(encryptedData.getData(),
+                            secretKey.getSecretKey(),
+                            encryptedData.getInitVector(),
+                            encryptedData.getTransformation());
             if (isOffline()) {
-                secret.setId(secret.getId() == null ? getRand().nextLong() :
-                             secret.getId());
+                secret.setId(secret.getId() == null ? getRand().nextLong()
+                        : secret.getId());
                 FileAndObjectIOAdapter.cache(secret);
                 throw new SecretsException("Currently offline.  Local cache updated, but online Add not available.");
             } else {
@@ -346,8 +339,8 @@ public class SecretsFacade {
                 //            CertificateSecret secret =
                 //                new CertificateSecret(encryptedData[0], secretKey.getSecretKey(),
                 //                                      encryptedData[1]);
-                Secret<Certificate> retval =
-                    getSecrets().persistSecret(secret);
+                Secret<Certificate> retval
+                        = getSecrets().persistSecret(secret);
                 FileAndObjectIOAdapter.cache(retval);
                 return retval;
             }
@@ -359,6 +352,7 @@ public class SecretsFacade {
 
     /**
      * In the CRUD and BREAD lifecycles, this corresponds to read.
+     *
      * @param secret
      * @return
      * @throws SecretsException
@@ -366,8 +360,8 @@ public class SecretsFacade {
     public <EntityClass> EntityClass decrypt(Secret<EntityClass> secret) throws SecretsException {
         try {
             PublicKeyEncryptedSecretKey selectedKey = null;
-            for (PublicKeyEncryptedSecretKey key :
-                 getSecurity().findMySecretKeys()) {
+            for (PublicKeyEncryptedSecretKey key
+                    : getSecurity().findMySecretKeys()) {
                 if (key.getSecretKey().getId().equals(secret.getSecretKey().getId())) {
                     selectedKey = key;
                     break;
@@ -375,8 +369,8 @@ public class SecretsFacade {
             }
             // TODO: Replace with null validation.
             selectedKey.toString();
-            return (EntityClass)DataDecryptionAdapter.decrypt(secret,
-                                                              selectedKey);
+            return (EntityClass) DataDecryptionAdapter.decrypt(secret,
+                    selectedKey);
         } catch (Exception e) {
             throw new SecretsException("Unable to decrypt secret.", e);
         } finally {
@@ -385,30 +379,31 @@ public class SecretsFacade {
 
     /**
      * In the CRUD and BREAD lifecycles, this corresponds to read.
+     *
      * @param secrets
      * @return
      * @throws SecretsException
      */
     public List<Secret<?>> decrypt(List<Secret<?>> secrets) throws SecretsException {
         try {
-            Map<Number, PublicKeyEncryptedSecretKey> keysById =
-                new HashMap<Number, PublicKeyEncryptedSecretKey>();
-            for (PublicKeyEncryptedSecretKey key :
-                 getSecurity().findMySecretKeys()) {
+            Map<Number, PublicKeyEncryptedSecretKey> keysById
+                    = new HashMap<Number, PublicKeyEncryptedSecretKey>();
+            for (PublicKeyEncryptedSecretKey key
+                    : getSecurity().findMySecretKeys()) {
                 keysById.put(key.getSecretKey().getId(), key);
             }
-            MapOfLists<Number, Secret<?>> secretsByKeyId =
-                new MapOfLists<Number, Secret<?>>();
+            MapOfLists<Number, Secret<?>> secretsByKeyId
+                    = new MapOfLists<Number, Secret<?>>();
             for (Secret<?> secret : secrets) {
                 secretsByKeyId.addToList(secret.getSecretKey().getId(),
-                                         secret);
+                        secret);
             }
-            for (Map.Entry<Number, List<Secret<?>>> subList :
-                 secretsByKeyId.entrySet()) {
+            for (Map.Entry<Number, List<Secret<?>>> subList
+                    : secretsByKeyId.entrySet()) {
                 // TODO: Replace with null validation.
                 keysById.get(subList.getKey()).toString();
-                DataDecryptionAdapter.decrypt((List<Secret<Object>>)(Object)subList.getValue(),
-                                              keysById.get(subList.getKey()));
+                DataDecryptionAdapter.decrypt((List<Secret<Object>>) (Object) subList.getValue(),
+                        keysById.get(subList.getKey()));
             }
             return secrets;
         } catch (Exception e) {
@@ -419,6 +414,7 @@ public class SecretsFacade {
 
     /**
      * In the CRUD and BREAD lifecycles, this corresponds to read.
+     *
      * @param secret
      * @return
      * @throws SecretsException
@@ -439,6 +435,7 @@ public class SecretsFacade {
 
     /**
      * In the ABCD and BREAD lifecycles, this corresponds to browse.
+     *
      * @return
      * @throws SecretsException
      */
@@ -446,17 +443,17 @@ public class SecretsFacade {
         try {
             List<ServerSecret> retval = null;
             if (isOffline()) {
-                retval =
-                        (List<ServerSecret>)(Object)FileAndObjectIOAdapter.loadAllByInterface(ServerSecret.class);
+                retval
+                        = (List<ServerSecret>) (Object) FileAndObjectIOAdapter.loadAllByInterface(ServerSecret.class);
             } else {
                 retval = getSecrets().findAvailableServerSecrets();
                 FileAndObjectIOAdapter.cache(retval);
             }
-            decrypt((List<Secret<?>>)(Object)retval);
+            decrypt((List<Secret<?>>) (Object) retval);
             return retval;
         } catch (Exception e) {
             throw new SecretsException("Unable to find available server secrets.",
-                                       e);
+                    e);
         } finally {
         }
     }
@@ -512,7 +509,7 @@ public class SecretsFacade {
     public PublicKeyEncryptedKey encryptAndDestroy(char[] password) throws SecretsException {
         try {
             return getSecurity().encryptAndDestroy(password,
-                                                   user.getX509Certificate());
+                    user.getX509Certificate());
         } catch (Exception e) {
             throw new SecretsException("Unable to encrypt the password.", e);
         } finally {
@@ -532,7 +529,7 @@ public class SecretsFacade {
             return getSecurity().decryptPassword(encryptedPassword);
         } catch (Exception e) {
             throw new SecretsException("Unable to decrypt the encrypted password.",
-                                       e);
+                    e);
         } finally {
         }
     }
@@ -545,13 +542,13 @@ public class SecretsFacade {
     public List<UserSecretKey> findMySecretKeys() throws SecretsException {
         List<UserSecretKey> retval = new ArrayList<UserSecretKey>();
         try {
-            for (PublicKeyEncryptedSecretKey key :
-                 getSecurity().findMySecretKeys()) {
+            for (PublicKeyEncryptedSecretKey key
+                    : getSecurity().findMySecretKeys()) {
                 retval.add(key.getSecretKey());
             }
         } catch (Exception e) {
             throw new SecretsException("Unable to find user's secret keys.",
-                                       e);
+                    e);
         } finally {
         }
         return retval;

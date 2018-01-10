@@ -27,16 +27,16 @@ import org.francisjohnson.pscpm.security.services.javacrypto.PublicKeyFingerprin
 import org.francisjohnson.pscpm.general.services.RdnParser;
 import org.francisjohnson.pscpm.security.services.javacrypto.X509Adapter;
 
-
 public class SecurityPrincipal implements Serializable, Identifiable<Long> {
+
     /**
      * This value must not change, or else the data in the cache will become
      * invalid.
      */
     private static final long serialVersionUID = 1;
 
-    private transient Logger logger =
-        Logger.getLogger(this.getClass().getPackage().getName());
+    private transient Logger logger
+            = Logger.getLogger(this.getClass().getPackage().getName());
     private Long id;
 
     private String cachedFriendlyName;
@@ -73,21 +73,20 @@ public class SecurityPrincipal implements Serializable, Identifiable<Long> {
     //            setX509CertificateEncoded(cert.getEncoded());
     //        }
     //    }
-
     public SecurityPrincipal(String userId,
-                             X509Certificate cert) throws CertificateEncodingException,
-                                                          NoSuchAlgorithmException {
+            X509Certificate cert) throws CertificateEncodingException,
+            NoSuchAlgorithmException {
         setUserId(userId);
         setX509Certificate(cert);
     }
 
     private String computePublicKeyFingerprintBase64(PublicKey pubKey) throws NoSuchAlgorithmException {
-        if (pubKey == null || pubKey.getEncoded() == null ||
-            pubKey.getEncoded().length < 1) {
+        if (pubKey == null || pubKey.getEncoded() == null
+                || pubKey.getEncoded().length < 1) {
             return null;
         } else {
-            MessageDigest digest =
-                MessageDigest.getInstance(getPublicKeyFingerprintAlgorithm());
+            MessageDigest digest
+                    = MessageDigest.getInstance(getPublicKeyFingerprintAlgorithm());
             return Base64.getEncoder().encodeToString(digest.digest(pubKey.getEncoded()));
         }
     }
@@ -95,9 +94,9 @@ public class SecurityPrincipal implements Serializable, Identifiable<Long> {
     private String proposeFriendlyName(X509Certificate cert) {
         CertificateProposedPurpose purpose = CertificateProposedPurpose.infer(cert);
         String cn = RdnParser.getFirstValue(cert.getSubjectX500Principal().getName(X500Principal.RFC2253),
-                                    "cn");
+                "cn");
         String org = RdnParser.getFirstValue(cert.getSubjectX500Principal().getName(X500Principal.RFC2253),
-                                    "o");
+                "o");
         return cn + "'s " + org + " " + purpose.getLabel() + " Certificate";
     }
 
@@ -129,19 +128,19 @@ public class SecurityPrincipal implements Serializable, Identifiable<Long> {
         this.x509CertificateEncoded = x509CertificateEncoded;
     }
 
-    private byte[] getX509CertificateEncoded() {
+    public byte[] getX509CertificateEncoded() {
         return x509CertificateEncoded;
     }
 
     public void setX509Certificate(X509Certificate cert) throws NoSuchAlgorithmException,
-                                                                CertificateEncodingException {
+            CertificateEncodingException {
         setPublicKeyFingerprintAlgorithm(PublicKeyFingerprinter.DEFAULT_FINGERPRINT_ALGORITHM);
-        setCachedDisplayName(cert == null ||
-                             cert.getIssuerX500Principal() == null ? null : RdnParser.getFirstValue(cert.getSubjectX500Principal().getName(),
-                                                     "cn"));
+        setCachedDisplayName(cert == null
+                || cert.getIssuerX500Principal() == null ? null : RdnParser.getFirstValue(cert.getSubjectX500Principal().getName(),
+                "cn"));
         setCachedFriendlyName(proposeFriendlyName(cert));
-        setCachedPubKeyFprintBase64(cert == null ? null :
-                                    computePublicKeyFingerprintBase64(cert.getPublicKey()));
+        setCachedPubKeyFprintBase64(cert == null ? null
+                : computePublicKeyFingerprintBase64(cert.getPublicKey()));
         setX509CertificateEncoded(cert == null ? null : cert.getEncoded());
     }
 
@@ -150,8 +149,8 @@ public class SecurityPrincipal implements Serializable, Identifiable<Long> {
     }
 
     public byte[] getCachedPublicKeyFingerprint() {
-        if (getCachedPubKeyFprintBase64() == null ||
-            getCachedPubKeyFprintBase64().isEmpty()) {
+        if (getCachedPubKeyFprintBase64() == null
+                || getCachedPubKeyFprintBase64().isEmpty()) {
             return null;
         } else {
             return Base64.getDecoder().decode(getCachedPubKeyFprintBase64());
@@ -200,20 +199,25 @@ public class SecurityPrincipal implements Serializable, Identifiable<Long> {
 
     public String getRfc822SubjectAlternativeName() throws CertificateException {
         List<String> rfc822Names = new ArrayList<String>();
-        for (List<?> subAltName :
-             (Collection<List<?>>)getX509Certificate().getSubjectAlternativeNames()) {
-            X500ASN1GeneralName generalName = X500ASN1GeneralName.find(((Number)subAltName.get(0)).intValue());
+        for (List<?> subAltName
+                : (Collection<List<?>>) getX509Certificate().getSubjectAlternativeNames()) {
+            X500ASN1GeneralName generalName = X500ASN1GeneralName.find(((Number) subAltName.get(0)).intValue());
             if (generalName == X500ASN1GeneralName.RFC822_NAME) {
-                String r8n = (String)subAltName.get(1);
+                String r8n = (String) subAltName.get(1);
                 if (r8n != null && !r8n.isEmpty()) {
                     rfc822Names.add(r8n);
                 }
             }
         }
         if (rfc822Names.size() > 1) {
-            System.out.println("Multiple subject alternative RFC 822 names found: " +
-                               rfc822Names + ".");
+            System.out.println("Multiple subject alternative RFC 822 names found: "
+                    + rfc822Names + ".");
         }
         return rfc822Names.size() != 1 ? null : rfc822Names.get(0);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " " + getUserId();
     }
 }
