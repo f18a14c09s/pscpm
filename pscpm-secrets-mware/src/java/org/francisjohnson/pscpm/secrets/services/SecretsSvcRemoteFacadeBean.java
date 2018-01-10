@@ -1,5 +1,6 @@
 package org.francisjohnson.pscpm.secrets.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -21,6 +22,7 @@ import org.francisjohnson.pscpm.secrets.data.ServerSecret;
 import org.francisjohnson.pscpm.secrets.impl.data.CertificateSecretEntity;
 import org.francisjohnson.pscpm.secrets.impl.data.SecretEntity;
 import org.francisjohnson.pscpm.secrets.impl.data.ServerSecretEntity;
+import org.francisjohnson.pscpm.security.data.PublicKeyEncryptedSecretKey;
 import org.francisjohnson.pscpm.security.services.SecuritySvcRemoteFacade;
 
 /**
@@ -75,9 +77,9 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
         if (secret != null) {
             SecretEntity<EntityClass> entity = null;
             if (secret instanceof ServerSecret) {
-                entity = (SecretEntity<EntityClass>) new ServerSecretEntity((Secret<Server>)secret);
+                entity = (SecretEntity<EntityClass>) new ServerSecretEntity((Secret<Server>) secret);
             } else if (secret instanceof CertificateSecret) {
-                entity = (SecretEntity<EntityClass>) new CertificateSecretEntity((Secret<Certificate>)secret);
+                entity = (SecretEntity<EntityClass>) new CertificateSecretEntity((Secret<Certificate>) secret);
             } else {
                 getLog().severe(String.format("Secret implementation %s not currently supported.", secret.getClass().getSimpleName()));
                 return null;
@@ -93,9 +95,9 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
         if (secret != null) {
             SecretEntity<EntityClass> entity = null;
             if (secret instanceof ServerSecret) {
-                entity = (SecretEntity<EntityClass>) new ServerSecretEntity((Secret<Server>)secret);
+                entity = (SecretEntity<EntityClass>) new ServerSecretEntity((Secret<Server>) secret);
             } else if (secret instanceof CertificateSecret) {
-                entity = (SecretEntity<EntityClass>) new CertificateSecretEntity((Secret<Certificate>)secret);
+                entity = (SecretEntity<EntityClass>) new CertificateSecretEntity((Secret<Certificate>) secret);
             } else {
                 getLog().severe(String.format("Secret implementation %s not currently supported.", secret.getClass().getSimpleName()));
                 return null;
@@ -110,9 +112,9 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
         if (secret != null) {
             SecretEntity<?> entity = null;
             if (secret instanceof ServerSecret) {
-                entity = (SecretEntity<?>) new ServerSecretEntity((Secret<Server>)secret);
+                entity = (SecretEntity<?>) new ServerSecretEntity((Secret<Server>) secret);
             } else if (secret instanceof CertificateSecret) {
-                entity = (SecretEntity<?>) new CertificateSecretEntity((Secret<Certificate>)secret);
+                entity = (SecretEntity<?>) new CertificateSecretEntity((Secret<Certificate>) secret);
             } else {
                 getLog().severe(String.format("Secret implementation %s not currently supported.", secret.getClass().getSimpleName()));
                 return;
@@ -142,8 +144,12 @@ public class SecretsSvcRemoteFacadeBean implements ISecretsService,
 
     @Override
     public List<ServerSecret> findAvailableServerSecrets() {
-        return em.createNamedQuery("ServerSecretEntity.findByUser").setParameter("user",
-                security.getCurrentUserImpl()).getResultList();
+        List<ServerSecret> retval = (List<ServerSecret>) new ArrayList<ServerSecret>();
+        for (ServerSecretEntity entity : (List<ServerSecretEntity>) em.createNamedQuery("ServerSecretEntity.findByUser").setParameter("user",
+                security.getCurrentUserImpl()).getResultList()) {
+            retval.add(entity.toSecret());
+        }
+        return retval;
     }
 
     @Override
