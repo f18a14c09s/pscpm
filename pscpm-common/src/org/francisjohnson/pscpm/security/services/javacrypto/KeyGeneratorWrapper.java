@@ -31,11 +31,11 @@ public class KeyGeneratorWrapper {
 
     public static void main(String... args) {
         try {
-            Map<String, UserCredential> credentials = IdentityKeyStoreAdapter.filterPrivateKeys("Francis Johnson");
+            Map<String, UserCredential> credentials = IdentityKeyStoreAdapter.filterPrivateKeys(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
             for (UserCredential cred : credentials.values()) {
                 System.out.println("Alias " + cred.getAlias() + " found.");
             }
-            UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential("Francis Johnson");
+            UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
             System.out.println("Using alias " + cred.getAlias() + ".");
             System.out.println("\tAsymmetric encryption algorithm: " +
                                cred.getKey().getAlgorithm() + ".");

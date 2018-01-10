@@ -25,6 +25,7 @@ import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
 
 public class IdentityKeyStoreAdapter {
 
+    public static final String DEFAULT_KEY_ALIAS_FILTER = "JOHNSON.FRANCIS.D.1281815233";
     public static final String DEFAULT_PROVIDER_NAME = "SunMSCAPI";
     public static final String DEFAULT_IDENTITY_STORE_TYPE = "Windows-MY";
 
@@ -34,8 +35,8 @@ public class IdentityKeyStoreAdapter {
             CertificateException,
             UnrecoverableKeyException {
         return filterPrivateKeys(aliasFilter, null
-//                new Date()
-                        );
+        //                new Date()
+        );
     }
 
     public static Map<String, UserCredential> filterPrivateKeys(String aliasFilter, Date minEndDate) throws KeyStoreException,
@@ -105,9 +106,9 @@ public class IdentityKeyStoreAdapter {
             NoSuchAlgorithmException,
             CertificateException,
             UnrecoverableKeyException {
-        return getBasicEncryptionCredential(aliasFilter
-                ,null
-//                , new Date()
+        return getBasicEncryptionCredential(aliasFilter,
+                 null
+        //                , new Date()
         );
     }
 

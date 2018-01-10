@@ -31,11 +31,7 @@ public class CertificateSecretEntity extends SecretEntity<Certificate> implement
     }
 
     public CertificateSecretEntity(Secret<Certificate> secret) {
-        setData(secret.getData());
-        setEncryptedData(secret.getEncryptedData());
-        setId(secret.getId());
-        setSecretKey(new UserSecretKeyEntity(secret.getSecretKey()));
-        setVersion(secret.getVersion());
+        super(secret);
     }
 
     public CertificateSecretEntity(byte[] encryptedData, UserSecretKeyEntity secretKey,

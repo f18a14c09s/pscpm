@@ -32,11 +32,11 @@ import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
 public class KeyDecryptionAdapter {
     public static void main(String[] args) {
         try {
-            Map<String, UserCredential> credentials = IdentityKeyStoreAdapter.filterPrivateKeys("Francis Johnson");
+            Map<String, UserCredential> credentials = IdentityKeyStoreAdapter.filterPrivateKeys(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
             for (int i = 0; i < 4; i++) {
                 SecretKey sourceSecretKey = KeyGeneratorWrapper.generateSecretKey();
-                UserCredential sigCred = IdentityKeyStoreAdapter.getAdvancedSignatureCredential("Francis Johnson");
-                UserCredential cryptCred = IdentityKeyStoreAdapter.getBasicEncryptionCredential("Francis Johnson");
+                UserCredential sigCred = IdentityKeyStoreAdapter.getAdvancedSignatureCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
+                UserCredential cryptCred = IdentityKeyStoreAdapter.getBasicEncryptionCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
                 PublicKeyEncryptedSecretKey encryptedKey = KeyEncryptionAdapter.encrypt(sourceSecretKey,
                                                    new User(sigCred.getRfc822SubjectAlternativeName(),
                                                             sigCred.getCert()),

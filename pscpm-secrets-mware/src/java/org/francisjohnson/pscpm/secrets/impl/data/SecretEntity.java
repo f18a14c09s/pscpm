@@ -98,6 +98,16 @@ public abstract class SecretEntity<EntityClass> implements Serializable,
         //        setCipherTransformation(cipherAlgorithm);
     }
 
+    public SecretEntity(Secret<EntityClass> secret) {
+        setData(secret.getData());
+        setEncryptedData(secret.getEncryptedData());
+        setId(secret.getId());
+        setSecretKey(new UserSecretKeyEntity(secret.getSecretKey()));
+        setVersion(secret.getVersion());
+        setCipherTransformation(secret.getCipherTransformation());
+        setCipherInitVectorBase64(secret.getCipherInitVectorBase64());
+    }
+
     public Long getId() {
         return id;
     }
@@ -144,7 +154,7 @@ public abstract class SecretEntity<EntityClass> implements Serializable,
                 : Base64.getDecoder().decode(getCipherInitVectorBase64());
     }
 
-    private void setCipherInitVectorBase64(String cryptoInitVectorBase64) {
+    protected void setCipherInitVectorBase64(String cryptoInitVectorBase64) {
         this.cipherInitVectorBase64 = cryptoInitVectorBase64;
     }
 
@@ -157,7 +167,7 @@ public abstract class SecretEntity<EntityClass> implements Serializable,
                 : Base64.getEncoder().encodeToString(cryptoInitVector));
     }
 
-    private void setCipherTransformation(String cipherAlgorithm) {
+    protected void setCipherTransformation(String cipherAlgorithm) {
         this.cipherTransformation = cipherAlgorithm;
     }
 

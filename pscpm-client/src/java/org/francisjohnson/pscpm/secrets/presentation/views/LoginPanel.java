@@ -192,7 +192,7 @@ public class LoginPanel extends PSCPMPanel {
     private void credListInit() {
         DefaultListModel<Object> model = new DefaultListModel<Object>();
         try {
-            model.addElement(IdentityKeyStoreAdapter.getAdvancedSignatureCredential("JOHNSON.FRANCIS.D.1281815233"));
+            model.addElement(IdentityKeyStoreAdapter.getAdvancedSignatureCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER));
         } catch (UnrecoverableKeyException e) {
             handleException(e);
         } catch (CertificateException e) {

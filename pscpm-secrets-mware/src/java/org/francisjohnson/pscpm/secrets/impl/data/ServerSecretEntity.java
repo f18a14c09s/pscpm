@@ -29,11 +29,11 @@ public class ServerSecretEntity extends SecretEntity<Server> implements Serializ
      * invalid.
      */
     private static final long serialVersionUID = 1;
-
+    
     public ServerSecretEntity() {
         setData(new Server());
     }
-
+    
     public ServerSecretEntity(byte[] encryptedData, UserSecretKeyEntity secretKey,
             byte[] initVector, String cipherAlgorithm) {
         super(encryptedData, secretKey, initVector, cipherAlgorithm);
@@ -41,24 +41,20 @@ public class ServerSecretEntity extends SecretEntity<Server> implements Serializ
             setData(new Server());
         }
     }
-
+    
     public ServerSecretEntity(Server data, UserSecretKeyEntity secretKey) {
         setData(data);
         setSecretKey(secretKey);
     }
-
+    
     public ServerSecretEntity(Secret<Server> secret) {
-        setData(secret.getData());
-        setEncryptedData(secret.getEncryptedData());
-        setId(secret.getId());
-        setSecretKey(new UserSecretKeyEntity(secret.getSecretKey()));
-        setVersion(secret.getVersion());
+        super(secret);
     }
-
+    
     public Server getServer() {
         return super.getData();
     }
-
+    
     @Override
     public ServerSecret toSecret() {
         ServerSecret retval = new ServerSecret();

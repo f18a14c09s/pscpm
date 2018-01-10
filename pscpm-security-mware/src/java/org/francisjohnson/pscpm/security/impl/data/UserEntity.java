@@ -32,7 +32,7 @@ public class UserEntity extends SecurityPrincipalEntity implements Serializable 
 
     @ManyToOne
     @JoinColumn(name = "DEFAULT_SECRET_KEY_ID", referencedColumnName = "ID"
-//            ,precision=38,scale=0
+    //            ,precision=38,scale=0
     )
     private PublicKeyEncryptedSecretKeyEntity defaultSecretKey;
 
@@ -79,7 +79,7 @@ public class UserEntity extends SecurityPrincipalEntity implements Serializable 
 
     public User toUser() {
         User retval = new User();
-        retval.setDefaultSecretKey(getDefaultSecretKey() == null ? null : getDefaultSecretKey().toPublicKeyEncryptedSecretKey());
+        retval.setDefaultSecretKey(getDefaultSecretKey() == null ? null : getDefaultSecretKey().toPublicKeyEncryptedSecretKey(retval));
         retval.setUserId(getUserId());
         retval.setX509CertificateEncoded(getX509CertificateEncoded());
         retval.setCachedDisplayName(

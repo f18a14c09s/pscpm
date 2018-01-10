@@ -107,7 +107,7 @@ public abstract class Secret<EntityClass> implements Serializable,
         this.cipherInitVectorBase64 = cryptoInitVectorBase64;
     }
 
-    private String getCipherInitVectorBase64() {
+    public String getCipherInitVectorBase64() {
         return cipherInitVectorBase64;
     }
 

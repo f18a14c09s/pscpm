@@ -24,6 +24,7 @@ import javax.persistence.Table;
 import org.francisjohnson.pscpm.general.data.Identifiable;
 import org.francisjohnson.pscpm.security.data.IPublicKeyEncryptedKey;
 import org.francisjohnson.pscpm.security.data.PublicKeyEncryptedSecretKey;
+import org.francisjohnson.pscpm.security.data.User;
 import org.francisjohnson.pscpm.security.services.javacrypto.PublicKeyFingerprinter;
 
 /**
@@ -367,6 +368,28 @@ public class PublicKeyEncryptedSecretKeyEntity implements Serializable,
         retval.setId(
                 getId());
         retval.setOwner(getOwner() == null ? null : getOwner().toUser());
+        retval.setPubKeyFingerprintAlgorithm(
+                getPubKeyFingerprintAlgorithm());
+        retval.setPublicKeyBase64(
+                getPublicKeyBase64());
+        retval.setPublicKeyFingerprintBase64(
+                getPublicKeyFingerprintBase64());
+        retval.setSecretKey(getSecretKey() == null ? null : getSecretKey().toUserSecretKey());
+        getSymmetricAlgorithm();
+        return retval;
+    }
+
+    public PublicKeyEncryptedSecretKey toPublicKeyEncryptedSecretKey(User owner) {
+        PublicKeyEncryptedSecretKey retval = new PublicKeyEncryptedSecretKey();
+        retval.setAsymmetricAlgorithm(
+                getAsymmetricAlgorithm());
+        retval.setCryptoInitVectorBase64(
+                getCryptoInitVectorBase64());
+        retval.setEncryptedSymmetricKeyBase64(
+                getEncryptedSymmetricKeyBase64());
+        retval.setId(
+                getId());
+        retval.setOwner(owner);
         retval.setPubKeyFingerprintAlgorithm(
                 getPubKeyFingerprintAlgorithm());
         retval.setPublicKeyBase64(

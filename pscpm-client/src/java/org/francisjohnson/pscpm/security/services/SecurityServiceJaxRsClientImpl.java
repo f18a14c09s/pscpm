@@ -245,7 +245,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
         try {
             Calendar cal = Calendar.getInstance();
             cal.set(2017, 1, 1);
-            UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential("JOHNSON.FRANCIS.D.1281815233");
+            UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
             X509Certificate cert = cred.getCert();
             ISecurityService svc = new SecurityServiceJaxRsClientImpl(cred.getKeyStore(), ServiceFacade.DEFAULT_SERVER_URL);
             User user = svc.authenticate(cert);

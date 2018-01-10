@@ -6,7 +6,6 @@ import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 
-import javax.swing.UIManager;
 
 import org.francisjohnson.pscpm.secrets.presentation.views.PSCPMMainContentPanel;
 import org.francisjohnson.pscpm.secrets.presentation.views.PSCPMMainJFrame;

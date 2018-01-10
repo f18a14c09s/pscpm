@@ -99,9 +99,9 @@ public abstract class EnhancedPasswordField extends PSCPMPanel {
         try {
             //            facade =
             //                    SecretsFacade.startSession(WebLogicRMIPrototype.DEFAULT_RMI_PROVIDER_URL,
-            //                                               PublicKeyIdentityStoreAdapter.getAdvancedSignatureCredential("Francis Johnson"));
+            //                                               PublicKeyIdentityStoreAdapter.getAdvancedSignatureCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER));
             facade =
-                    new SecretsFacade(IdentityKeyStoreAdapter.getBasicEncryptionCredential("Francis Johnson"));
+                    new SecretsFacade(IdentityKeyStoreAdapter.getBasicEncryptionCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER));
             List<ServerSecret> secrets = FileAndObjectIOAdapter.loadAllByClass(ServerSecret.class);
             for (PublicKeyEncryptedSecretKey tempKey : FileAndObjectIOAdapter.loadAllByClass(PublicKeyEncryptedSecretKey.class)) {
                 if (tempKey.getSecretKey().getId().equals(secrets.get(0).getSecretKey().getId())) {
