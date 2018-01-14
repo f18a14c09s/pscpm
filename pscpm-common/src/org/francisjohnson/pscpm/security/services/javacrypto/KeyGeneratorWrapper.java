@@ -17,6 +17,7 @@
 package org.francisjohnson.pscpm.security.services.javacrypto;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -25,6 +26,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -36,8 +38,8 @@ import org.francisjohnson.pscpm.security.data.PublicKeyEncryptedSecretKey;
 import org.francisjohnson.pscpm.security.data.User;
 import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
 
-
 public class KeyGeneratorWrapper {
+
     public static final String DEFAULT_CRYPTOGRAPHIC_ALGORITHM = "AES";
     public static final int DEFAULT_CRYPTOGRAPHIC_KEY_SIZE = 256;
 
@@ -49,17 +51,17 @@ public class KeyGeneratorWrapper {
         try {
             Map<String, UserCredential> credentials = IdentityKeyStoreAdapter.filterPrivateKeys(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
             for (UserCredential cred : credentials.values()) {
-                System.out.println("Alias " + cred.getAlias() + " found.");
+                getLog().info("Alias " + cred.getAlias() + " found.");
             }
             UserCredential cred = IdentityKeyStoreAdapter.getBasicEncryptionCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER);
-            System.out.println("Using alias " + cred.getAlias() + ".");
-            System.out.println("\tAsymmetric encryption algorithm: " +
-                               cred.getKey().getAlgorithm() + ".");
+            getLog().info("Using alias " + cred.getAlias() + ".");
+            getLog().info("\tAsymmetric encryption algorithm: "
+                    + cred.getKey().getAlgorithm() + ".");
 
             PublicKeyEncryptedSecretKey symmetricKey = KeyEncryptionAdapter.encrypt(generateSecretKey(),
-                                                     new User("business@francisjohnson.org",
-                                                              cred.getCert()),
-                                                     cred.getCert());
+                    new User("business@francisjohnson.org",
+                            cred.getCert()),
+                    cred.getCert());
         } catch (KeyStoreException e) {
             e.printStackTrace();
             System.exit(1);
@@ -91,9 +93,13 @@ public class KeyGeneratorWrapper {
     }
 
     public static SecretKey generateSecretKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGen =
-            KeyGenerator.getInstance(DEFAULT_CRYPTOGRAPHIC_ALGORITHM);
+        KeyGenerator keyGen
+                = KeyGenerator.getInstance(DEFAULT_CRYPTOGRAPHIC_ALGORITHM);
         keyGen.init(DEFAULT_CRYPTOGRAPHIC_KEY_SIZE);
         return keyGen.generateKey();
+    }
+
+    private static Logger getLog() {
+        return Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     }
 }

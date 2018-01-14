@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,20 +32,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.francisjohnson.pscpm.general.data.Identifiable;
 import org.francisjohnson.pscpm.general.services.IOUtil;
-
 
 /**
  * This class assumes that if confidentiality is required, then the data has
  * already been encrypted externally.
  */
 public class FileAndObjectIOAdapter {
-    public static final File DEFAULT_CACHE_DIRECTORY =
-        new File(new File(System.getProperty("user.home")), ".pscpm");
-    public static final File DEFAULT_CACHE_FILE =
-        new File(DEFAULT_CACHE_DIRECTORY, "secrets.cache");
+
+    private static final Logger _log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+
+    private static Logger getLog() {
+        return _log;
+    }
+    public static final File DEFAULT_CACHE_DIRECTORY
+            = new File(new File(System.getProperty("user.home")), ".pscpm");
+    public static final File DEFAULT_CACHE_FILE
+            = new File(DEFAULT_CACHE_DIRECTORY, "secrets.cache");
 
     public FileAndObjectIOAdapter() {
         super();
@@ -54,13 +61,13 @@ public class FileAndObjectIOAdapter {
         Map<Number, SerIdent> retval = new HashMap<Number, SerIdent>();
         for (SerIdent obj : objectsToCache) {
             if (obj == null || obj.getId() == null) {
-                System.err.println(FileAndObjectIOAdapter.class.getSimpleName() +
-                                   ".  Unable to map object onto its ID " +
-                                   (obj == null ?
-                                    "because the object itself is null" :
-                                    obj.getId() == null ?
-                                    "because the ID is null (obj=" + obj +
-                                    ")" : "for an unknown reason") + ".");
+                getLog().severe(FileAndObjectIOAdapter.class.getSimpleName()
+                        + ".  Unable to map object onto its ID "
+                        + (obj == null
+                                ? "because the object itself is null"
+                                : obj.getId() == null
+                                ? "because the ID is null (obj=" + obj
+                                + ")" : "for an unknown reason") + ".");
             } else {
                 retval.put(obj.getId(), obj);
             }
@@ -69,11 +76,11 @@ public class FileAndObjectIOAdapter {
     }
 
     public static <SerIdent extends Serializable & Identifiable<?>> void cache(SerIdent objectToCache) throws IOException,
-                                                                                                              ClassNotFoundException {
+            ClassNotFoundException {
         if (objectToCache == null) {
             // TODO: Throw an exception and handle it on the other side.
-            System.err.println(FileAndObjectIOAdapter.class.getSimpleName() +
-                               ".  Ignoring null input on add.");
+            getLog().severe(FileAndObjectIOAdapter.class.getSimpleName()
+                    + ".  Ignoring null input on add.");
         } else {
             boolean dirCreated = false;
             if (!DEFAULT_CACHE_DIRECTORY.exists()) {
@@ -81,25 +88,25 @@ public class FileAndObjectIOAdapter {
             }
             if (DEFAULT_CACHE_DIRECTORY.exists()) {
                 if (DEFAULT_CACHE_DIRECTORY.isDirectory()) {
-                    System.out.println("Default cache directory found" +
-                                       (dirCreated ?
-                                        ", after system created it" : "") +
-                                       ".");
+                    getLog().info("Default cache directory found"
+                            + (dirCreated
+                                    ? ", after system created it" : "")
+                            + ".");
                 } else {
-                    throw new IOException("Default cache path exists but is not a directory.  Path: " +
-                                          DEFAULT_CACHE_DIRECTORY.getAbsolutePath() +
-                                          ".");
+                    throw new IOException("Default cache path exists but is not a directory.  Path: "
+                            + DEFAULT_CACHE_DIRECTORY.getAbsolutePath()
+                            + ".");
                 }
             } else {
-                throw new IOException("Default cache directory not found, and system failed to create it.  Path: " +
-                                      DEFAULT_CACHE_DIRECTORY.getAbsolutePath() +
-                                      ".");
+                throw new IOException("Default cache directory not found, and system failed to create it.  Path: "
+                        + DEFAULT_CACHE_DIRECTORY.getAbsolutePath()
+                        + ".");
             }
-            if (DEFAULT_CACHE_FILE.exists() &&
-                DEFAULT_CACHE_FILE.length() >= 1) {
-                File backupFile =
-                    File.createTempFile(DEFAULT_CACHE_FILE.getName(),
-                                        ".backup", DEFAULT_CACHE_DIRECTORY);
+            if (DEFAULT_CACHE_FILE.exists()
+                    && DEFAULT_CACHE_FILE.length() >= 1) {
+                File backupFile
+                        = File.createTempFile(DEFAULT_CACHE_FILE.getName(),
+                                ".backup", DEFAULT_CACHE_DIRECTORY);
                 backupFile.delete();
                 DEFAULT_CACHE_FILE.renameTo(backupFile);
                 FileInputStream fis = null;
@@ -117,14 +124,14 @@ public class FileAndObjectIOAdapter {
                         try {
                             obj = ois.readObject();
                         } catch (EOFException e) {
-                            System.out.println("End of cache file encountered.  This is normal behavior.");
+                            getLog().info("End of cache file encountered.  This is normal behavior.");
                             break;
                         }
-                        SerIdent curSecret =
-                            obj != null && objectToCache.getClass().equals(obj.getClass()) ?
-                            (SerIdent)obj : null;
-                        if (curSecret != null &&
-                            curSecret.getId().equals(objectToCache.getId())) {
+                        SerIdent curSecret
+                                = obj != null && objectToCache.getClass().equals(obj.getClass())
+                                ? (SerIdent) obj : null;
+                        if (curSecret != null
+                                && curSecret.getId().equals(objectToCache.getId())) {
                             oos.writeObject(objectToCache);
                             objectWasUpdated = true;
                         } else {
@@ -153,14 +160,14 @@ public class FileAndObjectIOAdapter {
     }
 
     public static <SerIdent extends Serializable & Identifiable<?>> void cache(List<SerIdent> objectsToCache) throws IOException,
-                                                                                                                     ClassNotFoundException {
+            ClassNotFoundException {
         if (objectsToCache == null || objectsToCache.isEmpty()) {
             // TODO: Throw an exception and handle it on the other side.
-            System.err.println(FileAndObjectIOAdapter.class.getSimpleName() +
-                               ".  Ignoring " +
-                               (objectsToCache == null ? "null" :
-                                objectsToCache.isEmpty() ? "empty" :
-                                "unknown error with") + " list on bulk add.");
+            getLog().severe(FileAndObjectIOAdapter.class.getSimpleName()
+                    + ".  Ignoring "
+                    + (objectsToCache == null ? "null"
+                            : objectsToCache.isEmpty() ? "empty"
+                            : "unknown error with") + " list on bulk add.");
         } else {
             boolean dirCreated = false;
             if (!DEFAULT_CACHE_DIRECTORY.exists()) {
@@ -168,27 +175,27 @@ public class FileAndObjectIOAdapter {
             }
             if (DEFAULT_CACHE_DIRECTORY.exists()) {
                 if (DEFAULT_CACHE_DIRECTORY.isDirectory()) {
-                    System.out.println("Default cache directory found" +
-                                       (dirCreated ?
-                                        ", after system created it" : "") +
-                                       ".");
+                    getLog().info("Default cache directory found"
+                            + (dirCreated
+                                    ? ", after system created it" : "")
+                            + ".");
                 } else {
-                    throw new IOException("Default cache path exists but is not a directory.  Path: " +
-                                          DEFAULT_CACHE_DIRECTORY.getAbsolutePath() +
-                                          ".");
+                    throw new IOException("Default cache path exists but is not a directory.  Path: "
+                            + DEFAULT_CACHE_DIRECTORY.getAbsolutePath()
+                            + ".");
                 }
             } else {
-                throw new IOException("Default cache directory not found, and system failed to create it.  Path: " +
-                                      DEFAULT_CACHE_DIRECTORY.getAbsolutePath() +
-                                      ".");
+                throw new IOException("Default cache directory not found, and system failed to create it.  Path: "
+                        + DEFAULT_CACHE_DIRECTORY.getAbsolutePath()
+                        + ".");
             }
-            if (DEFAULT_CACHE_FILE.exists() &&
-                DEFAULT_CACHE_FILE.length() >= 1) {
+            if (DEFAULT_CACHE_FILE.exists()
+                    && DEFAULT_CACHE_FILE.length() >= 1) {
                 Map<Number, SerIdent> idMap = mapOntoIds(objectsToCache);
                 Set<Number> updateMap = new HashSet<Number>();
-                File backupFile =
-                    File.createTempFile(DEFAULT_CACHE_FILE.getName(),
-                                        ".backup", DEFAULT_CACHE_DIRECTORY);
+                File backupFile
+                        = File.createTempFile(DEFAULT_CACHE_FILE.getName(),
+                                ".backup", DEFAULT_CACHE_DIRECTORY);
                 backupFile.delete();
                 DEFAULT_CACHE_FILE.renameTo(backupFile);
                 FileInputStream fis = null;
@@ -206,17 +213,17 @@ public class FileAndObjectIOAdapter {
                         try {
                             obj = ois.readObject();
                         } catch (EOFException e) {
-                            System.out.println("End of cache file encountered.  This is normal behavior.");
+                            getLog().info("End of cache file encountered.  This is normal behavior.");
                             break;
                         }
                         SerIdent curSecret = null;
                         try {
-                            curSecret = (SerIdent)obj;
+                            curSecret = (SerIdent) obj;
                         } catch (ClassCastException e) {
                             classCastExceptions++;
                         }
-                        if (curSecret != null && curSecret.getId() != null &&
-                            idMap.get(curSecret.getId()) != null) {
+                        if (curSecret != null && curSecret.getId() != null
+                                && idMap.get(curSecret.getId()) != null) {
                             oos.writeObject(idMap.get(curSecret.getId()));
                             updateMap.add(curSecret.getId());
                         } else {
@@ -224,14 +231,14 @@ public class FileAndObjectIOAdapter {
                         }
                     }
                     if (classCastExceptions > 0) {
-                        System.out.println(FileAndObjectIOAdapter.class.getSimpleName() +
-                                           ".  Total of " +
-                                           classCastExceptions +
-                                           " encountered during bulk cache update." +
-                                           "  This is likely normal behavior, since the cache contains multiple object classes.");
+                        getLog().info(FileAndObjectIOAdapter.class.getSimpleName()
+                                + ".  Total of "
+                                + classCastExceptions
+                                + " encountered during bulk cache update."
+                                + "  This is likely normal behavior, since the cache contains multiple object classes.");
                     }
-                    for (Map.Entry<Number, SerIdent> entry :
-                         idMap.entrySet()) {
+                    for (Map.Entry<Number, SerIdent> entry
+                            : idMap.entrySet()) {
                         if (!updateMap.contains(entry.getKey())) {
                             oos.writeObject(entry.getValue());
                         }
@@ -259,16 +266,16 @@ public class FileAndObjectIOAdapter {
     /**
      * @param <SerIdent>
      * @param objectToDelete
-     * @return boolean.  True means the object does not reside in the cache,
-     * and false means that deletion failed.
+     * @return boolean. True means the object does not reside in the cache, and
+     * false means that deletion failed.
      * @throws IOException
      * @throws ClassNotFoundException
      */
     public static <SerIdent extends Serializable & Identifiable<?>> boolean delete(SerIdent objectToDelete) throws IOException,
-                                                                                                                   ClassNotFoundException {
+            ClassNotFoundException {
         if (objectToDelete == null) {
-            System.err.println(FileAndObjectIOAdapter.class.getSimpleName() +
-                               ".  Ignoring null input on delete.  Returning false.");
+            getLog().severe(FileAndObjectIOAdapter.class.getSimpleName()
+                    + ".  Ignoring null input on delete.  Returning false.");
             return false;
         } else {
             boolean dirCreated = false;
@@ -277,25 +284,25 @@ public class FileAndObjectIOAdapter {
             }
             if (DEFAULT_CACHE_DIRECTORY.exists()) {
                 if (DEFAULT_CACHE_DIRECTORY.isDirectory()) {
-                    System.out.println("Default cache directory found" +
-                                       (dirCreated ?
-                                        ", after system created it" : "") +
-                                       ".");
+                    getLog().info("Default cache directory found"
+                            + (dirCreated
+                                    ? ", after system created it" : "")
+                            + ".");
                 } else {
-                    throw new IOException("Default cache path exists but is not a directory.  Path: " +
-                                          DEFAULT_CACHE_DIRECTORY.getAbsolutePath() +
-                                          ".");
+                    throw new IOException("Default cache path exists but is not a directory.  Path: "
+                            + DEFAULT_CACHE_DIRECTORY.getAbsolutePath()
+                            + ".");
                 }
             } else {
-                throw new IOException("Default cache directory not found, and system failed to create it.  Path: " +
-                                      DEFAULT_CACHE_DIRECTORY.getAbsolutePath() +
-                                      ".");
+                throw new IOException("Default cache directory not found, and system failed to create it.  Path: "
+                        + DEFAULT_CACHE_DIRECTORY.getAbsolutePath()
+                        + ".");
             }
-            if (DEFAULT_CACHE_FILE.exists() &&
-                DEFAULT_CACHE_FILE.length() >= 1) {
-                File backupFile =
-                    File.createTempFile(DEFAULT_CACHE_FILE.getName(),
-                                        ".backup", DEFAULT_CACHE_DIRECTORY);
+            if (DEFAULT_CACHE_FILE.exists()
+                    && DEFAULT_CACHE_FILE.length() >= 1) {
+                File backupFile
+                        = File.createTempFile(DEFAULT_CACHE_FILE.getName(),
+                                ".backup", DEFAULT_CACHE_DIRECTORY);
                 backupFile.delete();
                 DEFAULT_CACHE_FILE.renameTo(backupFile);
                 FileInputStream fis = null;
@@ -313,14 +320,14 @@ public class FileAndObjectIOAdapter {
                         try {
                             obj = ois.readObject();
                         } catch (EOFException e) {
-                            System.out.println("End of cache file encountered.  This is normal behavior.");
+                            getLog().info("End of cache file encountered.  This is normal behavior.");
                             break;
                         }
-                        SerIdent curSecret =
-                            obj != null && objectToDelete.getClass().equals(obj.getClass()) ?
-                            (SerIdent)obj : null;
-                        if (curSecret != null &&
-                            curSecret.getId().equals(objectToDelete.getId())) {
+                        SerIdent curSecret
+                                = obj != null && objectToDelete.getClass().equals(obj.getClass())
+                                ? (SerIdent) obj : null;
+                        if (curSecret != null
+                                && curSecret.getId().equals(objectToDelete.getId())) {
                             // Omitting the object constitutes deletion.
                             objectWasDeleted = true;
                         } else {
@@ -338,14 +345,14 @@ public class FileAndObjectIOAdapter {
 
     /**
      * @param <SerIdent>
-     * @param iface Class.  Required.
+     * @param iface Class. Required.
      * @return List of all records from the cache that implement or inherit the
      * specified interface.
      * @throws IOException
      * @throws ClassNotFoundException
      */
     public static <SerIdent extends Serializable & Identifiable<?>> List<SerIdent> loadAllByInterface(Class<SerIdent> iface) throws IOException,
-                                                                                                                                    ClassNotFoundException {
+            ClassNotFoundException {
         List<SerIdent> retval = new ArrayList<SerIdent>();
         if (DEFAULT_CACHE_FILE.exists() && DEFAULT_CACHE_FILE.length() >= 1) {
             FileInputStream fis = null;
@@ -358,37 +365,37 @@ public class FileAndObjectIOAdapter {
                     try {
                         obj = ois.readObject();
                     } catch (EOFException e) {
-                        System.out.println("End of server secrets file encountered.  This is normal behavior.");
+                        getLog().info("End of server secrets file encountered.  This is normal behavior.");
                         break;
                     }
-                    if (obj != null &&
-                        iface.isAssignableFrom(obj.getClass())) {
-                        retval.add((SerIdent)obj);
+                    if (obj != null
+                            && iface.isAssignableFrom(obj.getClass())) {
+                        retval.add((SerIdent) obj);
                     }
                 }
             } finally {
                 IOUtil.closeSafely(ois, fis);
             }
-            System.out.println("Returning " + retval.size() +
-                               " instances of " + iface.getSimpleName() + ".");
+            getLog().info("Returning " + retval.size()
+                    + " instances of " + iface.getSimpleName() + ".");
         } else {
-            System.err.println("Cache file not found or is empty: " +
-                               DEFAULT_CACHE_FILE.getAbsolutePath() +
-                               " interface.");
+            getLog().severe("Cache file not found or is empty: "
+                    + DEFAULT_CACHE_FILE.getAbsolutePath()
+                    + " interface.");
         }
         return retval;
     }
 
     /**
      * @param <SerIdent>
-     * @param clazz Class.  Required.
+     * @param clazz Class. Required.
      * @return List of all records from the cache whose class exactly matches
      * specified class.
      * @throws IOException
      * @throws ClassNotFoundException
      */
     public static <SerIdent extends Serializable & Identifiable<?>> List<SerIdent> loadAllByClass(Class<SerIdent> clazz) throws IOException,
-                                                                                                                                ClassNotFoundException {
+            ClassNotFoundException {
         List<SerIdent> retval = new ArrayList<SerIdent>();
         if (DEFAULT_CACHE_FILE.exists() && DEFAULT_CACHE_FILE.length() >= 1) {
             FileInputStream fis = null;
@@ -401,21 +408,21 @@ public class FileAndObjectIOAdapter {
                     try {
                         obj = ois.readObject();
                     } catch (EOFException e) {
-                        System.out.println("End of server secrets file encountered.  This is normal behavior.");
+                        getLog().info("End of server secrets file encountered.  This is normal behavior.");
                         break;
                     }
                     if (obj != null && clazz.equals(obj.getClass())) {
-                        retval.add((SerIdent)obj);
+                        retval.add((SerIdent) obj);
                     }
                 }
             } finally {
                 IOUtil.closeSafely(ois, fis);
             }
-            System.out.println("Returning " + retval.size() +
-                               " instances of " + clazz.getSimpleName() + ".");
+            getLog().info("Returning " + retval.size()
+                    + " instances of " + clazz.getSimpleName() + ".");
         } else {
-            System.err.println("Cache file not found or is empty: " +
-                               DEFAULT_CACHE_FILE.getAbsolutePath() + ".");
+            getLog().severe("Cache file not found or is empty: "
+                    + DEFAULT_CACHE_FILE.getAbsolutePath() + ".");
         }
         return retval;
     }

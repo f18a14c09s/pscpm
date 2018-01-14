@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.francisjohnson.pscpm.secrets.data.SecretsException;
 import org.francisjohnson.pscpm.secrets.business.SecretsFacade;
@@ -29,6 +30,12 @@ import org.junit.runner.JUnitCore;
 import test.org.francisjohnson.pscpm.PSCPMTestCase;
 
 public class SecretsFacadeTest extends PSCPMTestCase {
+
+    private final Logger _log = Logger.getLogger(getClass().getName());
+
+    private Logger getLog() {
+        return _log;
+    }
 
     private static final String SAMPLE_FIRST_INITIALS
             = "jrmwdtcapsgkebnlfhzvo";
@@ -148,7 +155,6 @@ public class SecretsFacadeTest extends PSCPMTestCase {
 //    public void testAdd() {
 //        fail("Unimplemented");
 //    }
-
 //    /**
 //     * @see
 //     * org.francisjohnson.pscpm.secrets.business.SecretsFacade#add(org.francisjohnson.pscpm.secrets.domain.Certificate,org.francisjohnson.pscpm.security.domain.PublicKeyEncryptedSecretKey)
@@ -166,7 +172,6 @@ public class SecretsFacadeTest extends PSCPMTestCase {
 //    public void testRefresh() {
 //        fail("Unimplemented");
 //    }
-
 //    /**
 //     * @see org.francisjohnson.pscpm.secrets.business.SecretsFacade#getUser()
 //     */
@@ -210,7 +215,6 @@ public class SecretsFacadeTest extends PSCPMTestCase {
 //    public void testFindMySecretKeys() {
 //        fail("Unimplemented");
 //    }
-
     /**
      * @see
      * org.francisjohnson.pscpm.secrets.business.SecretsFacade#add(org.francisjohnson.pscpm.secrets.domain.Secret<org.francisjohnson.pscpm.secrets.domain.Server>)
@@ -389,17 +393,17 @@ public class SecretsFacadeTest extends PSCPMTestCase {
      */
     @Test
     public void testFindAvailableServers() {
-        System.out.println("Browsing the list of available servers:");
+        getLog().info("Browsing the list of available servers:");
         try {
             for (ServerSecret server : getSubject().findAvailableServers()) {
-                System.out.println("\t" + server.getData().getName());
-                System.out.println("\t\tDescription: "
+                getLog().info("\t" + server.getData().getName());
+                getLog().info("\t\tDescription: "
                         + server.getData().getDescription());
-                System.out.println("\t\tEnvironment: "
+                getLog().info("\t\tEnvironment: "
                         + server.getData().getEnvironment());
-                System.out.println("\t\tOS Version:  "
+                getLog().info("\t\tOS Version:  "
                         + server.getData().getOsVersion());
-                System.out.println("\t\tIP Address:  "
+                getLog().info("\t\tIP Address:  "
                         + server.getData().getIpAddress());
             }
         } catch (SecretsException e) {

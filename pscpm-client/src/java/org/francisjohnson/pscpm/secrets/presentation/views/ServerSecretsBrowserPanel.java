@@ -48,7 +48,6 @@ import javax.swing.border.TitledBorder;
 import org.francisjohnson.pscpm.general.data.BreadAction;
 import org.francisjohnson.pscpm.secrets.data.SecretsException;
 import org.francisjohnson.pscpm.secrets.data.ServerSecret;
-import org.francisjohnson.pscpm.secrets.presentation.general.Hyperlink.HyperlinkListener;
 import org.francisjohnson.pscpm.secrets.presentation.general.LinkWithDeleteIcon;
 import org.francisjohnson.pscpm.secrets.presentation.general.PSCPMButton;
 import static org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId.SERVER_BROWSER;
@@ -62,15 +61,15 @@ import org.francisjohnson.pscpm.general.services.MapUtil;
 import org.francisjohnson.pscpm.secrets.presentation.general.Hyperlink;
 import org.francisjohnson.pscpm.secrets.presentation.general.PSCPMPanel;
 
-
 public class ServerSecretsBrowserPanel extends PSCPMPanel {
+
     public static final int DEFAULT_NUMBER_PER_ROW = 4;
     private List<ServerSecret> data;
     private PSCPMButton logoutButton = new PSCPMButton("Logout");
     private PSCPMButton refreshServersButton = new PSCPMButton("Refresh");
     private PSCPMButton addServerButton = new PSCPMButton("Add Server");
-    private PSCPMButton generatePasswordButton =
-        new PSCPMButton("Generate Password to Clipboard");
+    private PSCPMButton generatePasswordButton
+            = new PSCPMButton("Generate Password to Clipboard");
     private Box headerBox = Box.createHorizontalBox();
     private Box verticalBox = Box.createVerticalBox();
     private ServerSecretMgmtPanel serverMgmtView;
@@ -83,8 +82,8 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
             jbInit();
         } catch (Exception e) {
             handleException(getViewId().getDisplayName() + " Unavailable",
-                            "Unable to initialize the " +
-                            getViewId().getDisplayName() + " feature.", e);
+                    "Unable to initialize the "
+                    + getViewId().getDisplayName() + " feature.", e);
         }
     }
 
@@ -93,8 +92,8 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
         setNav(new CardLayout());
         initButtonActions();
         getMainContent().setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY,
-                                                                                                   1),
-                                                                    "Browse Server Secrets:"));
+                1),
+                "Browse Server Secrets:"));
         initLayout();
         refreshDataAndView();
     }
@@ -110,17 +109,19 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
         // Level 2
         getMainContent().add(getHeaderBox(), BorderLayout.PAGE_START);
         getMainContent().add(new JScrollPane(getVerticalBox()),
-                             BorderLayout.CENTER);
+                BorderLayout.CENTER);
         // Level 3
-        getHeaderBox().add(new JLabel("Logged in as " +
-                                      (getSession() == null ||
-                                       getSession().getUser() == null ||
-                                       getSession().getUser().getUserId() ==
-                                       null ||
-                                       getSession().getUser().getUserId().trim().isEmpty() ?
-                                       "Unknown" :
-                                       getSession().getUser().getUserId().trim()) +
-                                      "."));
+//        String userInfo="Francis Johnson";
+        String userInfo = (getSession() == null
+                || getSession().getUser() == null
+                || getSession().getUser().getUserId()
+                == null
+                || getSession().getUser().getUserId().trim().isEmpty()
+                ? "Unknown"
+                : getSession().getUser().getUserId().trim());
+        getHeaderBox().add(new JLabel("Logged in as "
+                + userInfo
+                + "."));
         getHeaderBox().add(Box.createHorizontalGlue());
         getHeaderBox().add(getLogoutButton());
         getHeaderBox().add(getRefreshServersButton());
@@ -141,7 +142,7 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
             jbInit();
         } catch (Exception e) {
             handleException("Server Browser Unavailable",
-                            "Unable to initialize the server browser.", e);
+                    "Unable to initialize the server browser.", e);
         }
         revalidate();
     }
@@ -187,6 +188,7 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
     }
 
     private final class ServerSaveListener extends SingleRecordMgmtListener<ServerSecret> {
+
         public ServerSaveListener() {
             super(ServerSecretsBrowserPanel.this.getNavigator());
         }
@@ -194,51 +196,48 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
         public void savePressed(SingleRecordMgmtEvent<ServerSecret> evt) {
             ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
             switch (evt.getAction()) {
-            case ADD:
-                {
+                case ADD: {
                     try {
-                        ServerSecret managedRecord =
-                            outer.getSession().add(evt.getRecord());
+                        ServerSecret managedRecord
+                                = outer.getSession().add(evt.getRecord());
                         outer.addLinkToView(managedRecord);
                         nav(SERVER_BROWSER.name());
                     } catch (SecretsException e) {
                         outer.handleException("Add Failed",
-                                              "System failed to add the new server secret.",
-                                              e);
+                                "System failed to add the new server secret.",
+                                e);
                     }
                     break;
                 }
-            case EDIT:
-                {
+                case EDIT: {
                     try {
-                        ServerSecret managedRecord =
-                            outer.getSession().save(evt.getRecord());
+                        ServerSecret managedRecord
+                                = outer.getSession().save(evt.getRecord());
                         getData().remove(evt.getRecord());
                         getData().add(managedRecord);
                         refreshServerLinks(groupDataByEnvironment(getData()));
                         nav(SERVER_BROWSER.name());
                     } catch (SecretsException e) {
                         outer.handleException("Save Failed",
-                                              "System failed to save the server secret.",
-                                              e);
+                                "System failed to save the server secret.",
+                                e);
                     }
                     break;
                 }
-            default:
-                {
+                default: {
                     outer.handleError("Unexpected Error",
-                                      "An unexpected error occurred.",
-                                      "The action is neither add nor edit: " +
-                                      evt.getAction() + ".");
+                            "An unexpected error occurred.",
+                            "The action is neither add nor edit: "
+                            + evt.getAction() + ".");
                     break;
                 }
             }
         }
 
         public void cancelPressed(SingleRecordMgmtEvent<ServerSecret> evt) {
-            System.out.println((evt.getRecord() == null ? "" :
-                                evt.getRecord().getClass().getSimpleName()) +
-                               " " + (evt.getAction()) + " cancelled.");
+            getLog().info((evt.getRecord() == null ? ""
+                    : evt.getRecord().getClass().getSimpleName())
+                    + " " + (evt.getAction()) + " cancelled.");
             nav(SERVER_BROWSER.name());
         }
     }
@@ -247,67 +246,67 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
         // Clear the action listeners
         for (Component compon : getHeaderBox().getComponents()) {
             if (compon instanceof PSCPMButton) {
-                ((PSCPMButton)compon).removeAllActionListeners();
+                ((PSCPMButton) compon).removeAllActionListeners();
             }
         }
         getLogoutButton().addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
-                    // TODO: Here is an exception where you probably need to
-                    // rely externally for navigating away.
-                    outer.getNavigator().navigate(new NavigationEvent(e.getSource(),
-                                                                      outer.getViewId(), PSCPMOutcome.LOGOUT));
-                }
-            });
+            public void actionPerformed(ActionEvent e) {
+                ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
+                // TODO: Here is an exception where you probably need to
+                // rely externally for navigating away.
+                outer.getNavigator().navigate(new NavigationEvent(e.getSource(),
+                        outer.getViewId(), PSCPMOutcome.LOGOUT));
+            }
+        });
         getRefreshServersButton().addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
-                    try {
-                        //                        outer.reinit();
-                        outer.refreshDataAndView();
-                    } catch (Exception f) {
-                        handleException("Error During Refresh",
-                                        "Unable to refresh server browser data.",
-                                        f);
-                    }
+            public void actionPerformed(ActionEvent e) {
+                ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
+                try {
+                    //                        outer.reinit();
+                    outer.refreshDataAndView();
+                } catch (Exception f) {
+                    handleException("Error During Refresh",
+                            "Unable to refresh server browser data.",
+                            f);
                 }
-            });
+            }
+        });
         getAddServerButton().addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
-                    //                    outer.getServerMgmtView().init(getSession(),
-                    //                                                   new SingleRecordMgmtNavEvent<ServerSecret>(e.getSource(),
-                    //                                                                                              outer.getViewId(),
-                    //                                                                                              PSCPMOutcome.ADD_SERVER,
-                    //                                                                                              new ServerSaveListener(),
-                    //                                                                                              new ServerSecret()));
-                    outer.getServerMgmtView().init(getSession(),
-                                                   new SingleRecordMgmtNavEvent<ServerSecret>(new ServerSaveListener(),
-                                                                                              new ServerSecret(), BreadAction.ADD,
-                                                                                              true));
-                    outer.nav(SERVER_MGMT_FORM.name());
-                }
-            });
+            public void actionPerformed(ActionEvent e) {
+                ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
+                //                    outer.getServerMgmtView().init(getSession(),
+                //                                                   new SingleRecordMgmtNavEvent<ServerSecret>(e.getSource(),
+                //                                                                                              outer.getViewId(),
+                //                                                                                              PSCPMOutcome.ADD_SERVER,
+                //                                                                                              new ServerSaveListener(),
+                //                                                                                              new ServerSecret()));
+                outer.getServerMgmtView().init(getSession(),
+                        new SingleRecordMgmtNavEvent<ServerSecret>(new ServerSaveListener(),
+                                new ServerSecret(), BreadAction.ADD,
+                                true));
+                outer.nav(SERVER_MGMT_FORM.name());
+            }
+        });
         getGeneratePasswordButton().addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
-                    if (outer.getSession() == null) {
-                        handleError("Session Invalid",
-                                    "Cannot generate a password because the session object, which generates passwords, is invalid.");
-                    } else {
-                        StringSelection selec =
-                            new StringSelection(new String(outer.getSession().generatePassword()));
-                        try {
-                            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selec,
-                                                                                         selec);
-                        } catch (Exception f) {
-                            handleException("Clipboard Unavailable",
-                                            "Failed to generate a password to the clipboard.",
-                                            f);
-                        }
+            public void actionPerformed(ActionEvent e) {
+                ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
+                if (outer.getSession() == null) {
+                    handleError("Session Invalid",
+                            "Cannot generate a password because the session object, which generates passwords, is invalid.");
+                } else {
+                    StringSelection selec
+                            = new StringSelection(new String(outer.getSession().generatePassword()));
+                    try {
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selec,
+                                selec);
+                    } catch (Exception f) {
+                        handleException("Clipboard Unavailable",
+                                "Failed to generate a password to the clipboard.",
+                                f);
                     }
                 }
-            });
+            }
+        });
     }
 
     private void refreshDataAndView() throws SecretsException {
@@ -325,8 +324,8 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
     }
 
     private Map<String, List<ServerSecret>> groupDataByEnvironment(List<ServerSecret> rawData) {
-        Map<String, List<ServerSecret>> retval =
-            new TreeMap<String, List<ServerSecret>>(Collections.reverseOrder(new Comparator<String>() {
+        Map<String, List<ServerSecret>> retval
+                = new TreeMap<String, List<ServerSecret>>(Collections.reverseOrder(new Comparator<String>() {
                     public int compare(String lhs, String rhs) {
                         if (lhs == rhs) {
                             return 0;
@@ -339,16 +338,16 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
                         }
                         String lhsLower = lhs == null ? "" : lhs.toLowerCase();
                         String rhsLower = rhs == null ? "" : rhs.toLowerCase();
-                        return lhsLower.contains("prod") ?
-                               rhsLower.contains("prod") ?
-                               lhsLower.compareTo(rhsLower) : -1 :
-                               lhsLower.contains("test") ?
-                               rhsLower.contains("prod") ? 1 :
-                               rhsLower.contains("test") ?
-                               lhsLower.compareTo(rhsLower) : -1 :
-                               rhsLower.contains("prod") ||
-                               rhsLower.contains("test") ? 1 :
-                               lhsLower.compareTo(rhsLower);
+                        return lhsLower.contains("prod")
+                                ? rhsLower.contains("prod")
+                                ? lhsLower.compareTo(rhsLower) : -1
+                                : lhsLower.contains("test")
+                                ? rhsLower.contains("prod") ? 1
+                                : rhsLower.contains("test")
+                                ? lhsLower.compareTo(rhsLower) : -1
+                                : rhsLower.contains("prod")
+                                || rhsLower.contains("test") ? 1
+                                : lhsLower.compareTo(rhsLower);
                     }
                 }));
         int nullServers = 0;
@@ -357,20 +356,20 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
                 // This indicates an error with add save, edit save, or finder method.
                 nullServers++;
             } else {
-                String env =
-                    server.getData().getEnvironment() == null ? "UNKNOWN ENVIRONMENT" :
-                    server.getData().getEnvironment();
+                String env
+                        = server.getData().getEnvironment() == null ? "UNKNOWN ENVIRONMENT"
+                        : server.getData().getEnvironment();
                 if (!retval.containsKey(env)) {
                     retval.put(env, new ArrayList<ServerSecret>());
                 }
-                List<ServerSecret> list = (List<ServerSecret>)retval.get(env);
+                List<ServerSecret> list = (List<ServerSecret>) retval.get(env);
                 list.add(server);
             }
         }
         if (nullServers > 0) {
             handleError("Error While Traversing the Server Secrets",
-                        "One or more (" + nullServers +
-                        " total) server objects is/are null.");
+                    "One or more (" + nullServers
+                    + " total) server objects is/are null.");
         }
         return retval;
     }
@@ -388,55 +387,55 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
             for (final ServerSecret server : sourceData.get(env)) {
                 JPanel linkPanel = new JPanel();
                 linkPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-                LinkWithDeleteIcon hyperlink =
-                    new LinkWithDeleteIcon(server.getData().getName(), true);
+                LinkWithDeleteIcon hyperlink
+                        = new LinkWithDeleteIcon(server.getData().getName(), true);
                 hyperlink.addActivationListener(new Hyperlink.HyperlinkListener() {
-                        public void linkActivated(InputEvent evt) {
-                            ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
-                            //                            outer.getServerMgmtView().init(getSession(),
-                            //                                                           new SingleRecordMgmtNavEvent<ServerSecret>(evt.getSource(),
-                            //                                                                                                      outer.getViewId(),
-                            //                                                                                                      PSCPMOutcome.MANAGE_SERVER,
-                            //                                                                                                      new ServerSaveListener(),
-                            //                                                                                                      server));
-                            outer.getServerMgmtView().init(getSession(),
-                                                           new SingleRecordMgmtNavEvent<ServerSecret>(new ServerSaveListener(),
-                                                                                                      server, BreadAction.READ,
-                                                                                                      true));
-                            outer.nav(SERVER_MGMT_FORM.name());
-                        }
-                    });
+                    public void linkActivated(InputEvent evt) {
+                        ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
+                        //                            outer.getServerMgmtView().init(getSession(),
+                        //                                                           new SingleRecordMgmtNavEvent<ServerSecret>(evt.getSource(),
+                        //                                                                                                      outer.getViewId(),
+                        //                                                                                                      PSCPMOutcome.MANAGE_SERVER,
+                        //                                                                                                      new ServerSaveListener(),
+                        //                                                                                                      server));
+                        outer.getServerMgmtView().init(getSession(),
+                                new SingleRecordMgmtNavEvent<ServerSecret>(new ServerSaveListener(),
+                                        server, BreadAction.READ,
+                                        true));
+                        outer.nav(SERVER_MGMT_FORM.name());
+                    }
+                });
                 hyperlink.addDeletionListener(new Hyperlink.HyperlinkListener() {
-                        public void linkActivated(InputEvent e) {
-                            ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
-                            try {
-                                outer.getSession().delete(server);
-                            } catch (Exception f) {
-                                outer.handleException("Deletion Failed",
-                                                      "Server secret deletion failed.",
-                                                      f);
-                            }
-                            // Refresh occurs anyway just in case the delete
-                            // occurred (e.g. in the cache).
-                            // Nevermind; too slow
-                            outer.deleteLinkToView(server);
+                    public void linkActivated(InputEvent e) {
+                        ServerSecretsBrowserPanel outer = ServerSecretsBrowserPanel.this;
+                        try {
+                            outer.getSession().delete(server);
+                        } catch (Exception f) {
+                            outer.handleException("Deletion Failed",
+                                    "Server secret deletion failed.",
+                                    f);
                         }
-                    });
+                        // Refresh occurs anyway just in case the delete
+                        // occurred (e.g. in the cache).
+                        // Nevermind; too slow
+                        outer.deleteLinkToView(server);
+                    }
+                });
                 linkPanel.add(hyperlink);
                 panel.add(linkPanel);
             }
             panelWithSpacer.setLayout(new BorderLayout());
             panelWithSpacer.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK,
-                                                                                                      2),
-                                                                       env,
-                                                                       TitledBorder.LEFT,
-                                                                       TitledBorder.CENTER,
-                                                                       new Font(Font.SANS_SERIF,
-                                                                                Font.BOLD,
-                                                                                16).deriveFont(MapUtil.asMap(MapUtil.entry(TextAttribute.FOREGROUND,
-                                                                                                                           new Color(0,
-                                                                                                                                     0,
-                                                                                                                                     128))))));
+                    2),
+                    env,
+                    TitledBorder.LEFT,
+                    TitledBorder.CENTER,
+                    new Font(Font.SANS_SERIF,
+                            Font.BOLD,
+                            16).deriveFont(MapUtil.asMap(MapUtil.entry(TextAttribute.FOREGROUND,
+                            new Color(0,
+                                    0,
+                                    128))))));
             panelWithSpacer.add(panel, BorderLayout.CENTER);
             JPanel spacer = new JPanel();
             Dimension spacerHeight = new Dimension(1, 100);
@@ -457,7 +456,7 @@ public class ServerSecretsBrowserPanel extends PSCPMPanel {
     }
 
     private void addLinkToView(ServerSecret server) {
-        ((List<ServerSecret>)getData()).add(server);
+        ((List<ServerSecret>) getData()).add(server);
         refreshServerLinks(groupDataByEnvironment(getData()));
     }
 

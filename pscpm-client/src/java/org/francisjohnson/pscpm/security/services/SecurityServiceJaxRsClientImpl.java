@@ -18,6 +18,7 @@ package org.francisjohnson.pscpm.security.services;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -79,14 +80,14 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
 
     @Override
     public User authenticate(X509Certificate cert) throws CertificateEncodingException {
-//        System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
+//        getLog().info(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
         if (cert != null) {
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.add("user_cert", Base64.getEncoder().encodeToString(cert.getEncoded()));
             byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/authenticate")
                     .request()
                     .post(Entity.form(formData), byte[].class);
-//            System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
+//            getLog().info(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
             if (retvalAB != null && retvalAB.length >= 1) {
                 try {
                     return IOUtil.deserialize(retvalAB);
@@ -170,11 +171,11 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
 
     @Override
     public User getCurrentUser() {
-//        System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
+//        getLog().info(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "Certificate " + (cert == null ? "is null" : "is non-null")));
         byte[] retvalAB = getDefaultClient().target(getBaseUrl() + "/get_current_user")
                 .request()
                 .get(byte[].class);
-//            System.out.println(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
+//            getLog().info(String.format("%s.%s: %s.", getClass().getName(), "authenticate", "User bytes: " + (user == null ? null : "byte[" + user.length) + "]" + "."));
         if (retvalAB != null && retvalAB.length >= 1) {
             try {
                 return IOUtil.deserialize(retvalAB);
@@ -253,6 +254,7 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
 //
 //java -cp "%MYCP%" org.francisjohnson.pscpm.security.services.SecurityServiceJaxRsClientImpl
     public static void main(String... args) {
+        Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
         try {
             Calendar cal = Calendar.getInstance();
             cal.set(2017, 1, 1);
@@ -260,18 +262,18 @@ public class SecurityServiceJaxRsClientImpl implements ISecurityService {
             X509Certificate cert = cred.getCert();
             ISecurityService svc = new SecurityServiceJaxRsClientImpl(cred.getKeyStore(), ServiceFacade.DEFAULT_SERVER_URL);
             User user = svc.authenticate(cert);
-            System.out.println("authenticate(): " + user + ".");
+            log.info("authenticate(): " + user + ".");
             user = svc.getCurrentUser();
-            System.out.println("getCurrentUser(): " + user + ".");
+            log.info("getCurrentUser(): " + user + ".");
             SecurityPrincipal principal = svc.findPrincipal(cert);
-            System.out.println("findPrincipal(): " + principal + ".");
+            log.info("findPrincipal(): " + principal + ".");
             user = svc.mergeUser(user);
-            System.out.println("mergeUser(): " + user + ".");
+            log.info("mergeUser(): " + user + ".");
             svc.setUserCertificate(cert);
             PublicKeyEncryptedSecretKey secretKey = svc.newSecretKey("Hello World!  " + System.currentTimeMillis());
-            System.out.println("newSecretKey(): " + secretKey + ".");
+            log.info("newSecretKey(): " + secretKey + ".");
             List<PublicKeyEncryptedSecretKey> secretKeys = svc.findUserSecretKeys();
-            System.out.println("findUserSecretKeys(): " + secretKeys + ".");
+            log.info("findUserSecretKeys(): " + secretKeys + ".");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

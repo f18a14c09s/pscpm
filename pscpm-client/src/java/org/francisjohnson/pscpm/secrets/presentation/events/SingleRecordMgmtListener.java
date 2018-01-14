@@ -19,6 +19,7 @@ package org.francisjohnson.pscpm.secrets.presentation.events;
 import java.awt.Component;
 
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 import org.francisjohnson.pscpm.secrets.data.ServerSecret;
 import org.francisjohnson.pscpm.secrets.presentation.general.PSCPMPanel;
@@ -26,6 +27,8 @@ import org.francisjohnson.pscpm.secrets.presentation.general.PSCPMPanel;
 
 public abstract class SingleRecordMgmtListener<RecordType extends Serializable> implements PSCPMListener {
     private NavigationListener navigator;
+    private final Logger _log=Logger.getLogger(getClass().getName());
+    private Logger getLog(){return _log;}
 
     public SingleRecordMgmtListener() {
     }
@@ -37,7 +40,7 @@ public abstract class SingleRecordMgmtListener<RecordType extends Serializable> 
     public abstract void savePressed(SingleRecordMgmtEvent<RecordType> evt);
 
     public void cancelPressed(SingleRecordMgmtEvent<RecordType> evt) {
-        System.out.println((evt.getRecord() == null ? "" :
+        getLog().info((evt.getRecord() == null ? "" :
                             evt.getRecord().getClass().getSimpleName()) + " " +
                            (evt.getAction()) + " cancelled.");
         Component compon =

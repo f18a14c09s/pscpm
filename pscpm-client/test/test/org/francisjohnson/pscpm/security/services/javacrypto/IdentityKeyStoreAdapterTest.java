@@ -1,6 +1,7 @@
 package test.org.francisjohnson.pscpm.security.services.javacrypto;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
 import org.francisjohnson.pscpm.security.services.javacrypto.IdentityKeyStoreAdapter;
@@ -14,6 +15,12 @@ import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
 public class IdentityKeyStoreAdapterTest {
+
+    private final Logger _log = Logger.getLogger(getClass().getName());
+
+    private Logger getLog() {
+        return _log;
+    }
 
     public IdentityKeyStoreAdapterTest() {
     }
@@ -50,7 +57,7 @@ public class IdentityKeyStoreAdapterTest {
 
     private void verifyCredential(UserCredential cred) {
         assertNotNull(cred);
-        System.out.println("Verifying UserCredential:\n\tAlias: "
+        getLog().info("Verifying UserCredential:\n\tAlias: "
                 + cred.getAlias() + ";\n\tPurpose: "
                 + cred.getPurpose().getLabel() + ".");
         assertNotNull(cred.getAlias());

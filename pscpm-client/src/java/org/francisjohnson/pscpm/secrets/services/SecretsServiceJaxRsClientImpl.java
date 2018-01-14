@@ -17,6 +17,7 @@
 package org.francisjohnson.pscpm.secrets.services;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.Base64;
@@ -246,6 +247,7 @@ public class SecretsServiceJaxRsClientImpl implements ISecretsService {
     }
 
     public static void main(String... args) {
+        Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
         try {
             Calendar cal = Calendar.getInstance();
             cal.set(2017, 1, 1);
@@ -260,15 +262,15 @@ public class SecretsServiceJaxRsClientImpl implements ISecretsService {
             server.getData().setName("unit-tst-svr-" + System.currentTimeMillis());
             server.getData().setOsVersion("Unix");
             server = svc.persistSecret(server);
-            System.out.println("persistSecret(): " + server + ".");
+            log.info("persistSecret(): " + server + ".");
             server = svc.findServer(server.getId());
-            System.out.println("findServer(): " + server + ".");
+            log.info("findServer(): " + server + ".");
             server = svc.mergeSecret(server);
-            System.out.println("mergeSecret(): " + server + ".");
+            log.info("mergeSecret(): " + server + ".");
             server = svc.refresh(server);
-            System.out.println("refresh(): " + server + ".");
+            log.info("refresh(): " + server + ".");
             List<ServerSecret> servers = svc.findAvailableServerSecrets();
-            System.out.println("findAvailableServerSecrets(): " + servers + ".");
+            log.info("findAvailableServerSecrets(): " + servers + ".");
             svc.removeSecret(server);
             Secret<Certificate> cert = new CertificateSecret();
             cert.setData(cert.getData() == null ? new Certificate() : cert.getData());
@@ -283,9 +285,9 @@ public class SecretsServiceJaxRsClientImpl implements ISecretsService {
             cert.getData().setStorePassword("nunyo".getBytes(StandardCharsets.UTF_8));
             cert.getData().setStoreType(Certificate.StoreType.JKS);
             cert = svc.persistSecret(cert);
-            System.out.println("persistSecret(): " + cert + ".");
+            log.info("persistSecret(): " + cert + ".");
             cert = svc.findCertificate(cert.getId());
-            System.out.println("findCertificate(): " + cert + ".");
+            log.info("findCertificate(): " + cert + ".");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

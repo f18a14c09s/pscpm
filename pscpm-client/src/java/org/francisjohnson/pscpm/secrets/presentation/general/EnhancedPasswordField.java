@@ -253,7 +253,7 @@ public abstract class EnhancedPasswordField extends PSCPMPanel {
 
     @Override
     public void revalidate() {
-        //        System.out.println(this.getClass().getSimpleName()+".  Revalidate called.");
+        //        getLog().info(this.getClass().getSimpleName()+".  Revalidate called.");
         actionChanged();
         super.revalidate();
     }

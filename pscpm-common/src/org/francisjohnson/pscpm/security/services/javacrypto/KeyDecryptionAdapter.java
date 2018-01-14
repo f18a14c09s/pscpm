@@ -17,6 +17,7 @@
 package org.francisjohnson.pscpm.security.services.javacrypto;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import java.nio.ByteBuffer;
 
@@ -30,6 +31,7 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -69,11 +71,11 @@ public class KeyDecryptionAdapter {
                 }
                 SecretKey decryptedSecretKey = decrypt(encryptedKey);
                 //                            , decryptionPrivateKey
-                System.out.println("Source secret key: " +
+                getLog().info("Source secret key: " +
                                    Base64.getEncoder().encodeToString(sourceSecretKey.getEncoded()));
-                System.out.println("E-then-D secret key: " +
+                getLog().info("E-then-D secret key: " +
                                    Base64.getEncoder().encodeToString(decryptedSecretKey.getEncoded()));
-                System.out.println("Source and encrypted-then-decrypted key match? " +
+                getLog().info("Source and encrypted-then-decrypted key match? " +
                                    Arrays.equals(sourceSecretKey.getEncoded(),
                                                  decryptedSecretKey.getEncoded()) +
                                    ".");
@@ -215,5 +217,9 @@ public class KeyDecryptionAdapter {
         }
         Arrays.fill(decryptedKey, (byte)0);
         return retval;
+    }
+
+    private static Logger getLog() {
+        return Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     }
 }

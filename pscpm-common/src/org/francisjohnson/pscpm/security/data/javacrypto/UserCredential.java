@@ -16,6 +16,7 @@
  */
 package org.francisjohnson.pscpm.security.data.javacrypto;
 
+import java.util.logging.Logger;
 import java.io.Serializable;
 
 import java.security.KeyStore;
@@ -37,8 +38,8 @@ import org.francisjohnson.pscpm.security.data.x500.CertificateProposedPurpose;
 import org.francisjohnson.pscpm.security.data.x500.X500ASN1GeneralName;
 import org.francisjohnson.pscpm.general.services.RdnParser;
 
-
 public class UserCredential implements Serializable {
+
     private String alias;
     private Provider provider;
     private transient KeyStore keyStore;
@@ -46,7 +47,7 @@ public class UserCredential implements Serializable {
     private PrivateKey key;
 
     public UserCredential(String alias, Provider provider, KeyStore keyStore,
-                          X509Certificate cert, PrivateKey key) {
+            X509Certificate cert, PrivateKey key) {
         setAlias(alias);
         setProvider(provider);
         setKeyStore(keyStore);
@@ -87,29 +88,29 @@ public class UserCredential implements Serializable {
     }
 
     public String getPublicKeyBase64() {
-        return getCert() == null || getCert().getPublicKey() == null ||
-               getCert().getPublicKey().getEncoded() == null ? null :
-               Base64.getEncoder().encodeToString(getCert().getPublicKey().getEncoded());
+        return getCert() == null || getCert().getPublicKey() == null
+                || getCert().getPublicKey().getEncoded() == null ? null
+                : Base64.getEncoder().encodeToString(getCert().getPublicKey().getEncoded());
     }
 
     public String getPublicKeyFingerprintBase64(String messageDigestAlgorithm) throws NoSuchAlgorithmException {
-        if (getCert() == null || getCert().getPublicKey() == null ||
-            getCert().getPublicKey().getEncoded() == null) {
+        if (getCert() == null || getCert().getPublicKey() == null
+                || getCert().getPublicKey().getEncoded() == null) {
             return null;
         } else {
-            MessageDigest digest =
-                MessageDigest.getInstance(messageDigestAlgorithm);
+            MessageDigest digest
+                    = MessageDigest.getInstance(messageDigestAlgorithm);
             return Base64.getEncoder().encodeToString(digest.digest(getCert().getPublicKey().getEncoded()));
         }
     }
 
     public byte[] getPublicKeyFingerprint(String messageDigestAlgorithm) throws NoSuchAlgorithmException {
-        if (getCert() == null || getCert().getPublicKey() == null ||
-            getCert().getPublicKey().getEncoded() == null) {
+        if (getCert() == null || getCert().getPublicKey() == null
+                || getCert().getPublicKey().getEncoded() == null) {
             return null;
         } else {
-            MessageDigest digest =
-                MessageDigest.getInstance(messageDigestAlgorithm);
+            MessageDigest digest
+                    = MessageDigest.getInstance(messageDigestAlgorithm);
             return digest.digest(getCert().getPublicKey().getEncoded());
         }
     }
@@ -121,11 +122,11 @@ public class UserCredential implements Serializable {
             CertificateProposedPurpose purpose = CertificateProposedPurpose.infer(getCert());
 
             String cn = RdnParser.getFirstValue(getCert().getSubjectX500Principal().getName(X500Principal.RFC2253),
-                                        "cn");
+                    "cn");
             String org = RdnParser.getFirstValue(getCert().getSubjectX500Principal().getName(X500Principal.RFC2253),
-                                        "o");
-            return cn + "'s " + org + " " + purpose.getLabel() +
-                " Certificate";
+                    "o");
+            return cn + "'s " + org + " " + purpose.getLabel()
+                    + " Certificate";
         }
     }
 
@@ -143,25 +144,25 @@ public class UserCredential implements Serializable {
 
     public String getRfc822SubjectAlternativeName() throws CertificateException {
         List<String> rfc822Names = new ArrayList<String>();
-        for (List<?> subAltName :
-             (Collection<List<?>>)getCert().getSubjectAlternativeNames()) {
-            X500ASN1GeneralName generalName = X500ASN1GeneralName.find(((Number)subAltName.get(0)).intValue());
+        for (List<?> subAltName
+                : (Collection<List<?>>) getCert().getSubjectAlternativeNames()) {
+            X500ASN1GeneralName generalName = X500ASN1GeneralName.find(((Number) subAltName.get(0)).intValue());
             if (generalName == X500ASN1GeneralName.RFC822_NAME) {
-                String r8n = (String)subAltName.get(1);
+                String r8n = (String) subAltName.get(1);
                 if (r8n != null && !r8n.isEmpty()) {
                     rfc822Names.add(r8n);
                 }
             }
         }
         if (rfc822Names.size() > 1) {
-            System.out.println("Multiple subject alternative RFC 822 names found: " +
-                               rfc822Names + ".");
+            Logger.getLogger(getClass().getName()).info("Multiple subject alternative RFC 822 names found: "
+                    + rfc822Names + ".");
         }
         return rfc822Names.size() != 1 ? null : rfc822Names.get(0);
     }
 
     public String toString() {
-        return getFriendlyName() == null || getFriendlyName().isEmpty() ?
-               "Alias " + getAlias() : getFriendlyName();
+        return getFriendlyName() == null || getFriendlyName().isEmpty()
+                ? "Alias " + getAlias() : getFriendlyName();
     }
 }

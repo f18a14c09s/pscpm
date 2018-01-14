@@ -17,6 +17,7 @@
 package org.francisjohnson.pscpm.security.services.javacrypto;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import java.security.Key;
 import java.security.KeyStore;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import org.francisjohnson.pscpm.security.data.x500.CertificateProposedPurpose;
 import org.francisjohnson.pscpm.security.data.javacrypto.UserCredential;
@@ -78,29 +80,29 @@ public class IdentityKeyStoreAdapter {
         }
         Date now = new Date();
         for (String alias : aliases) {
-            //                System.out.println("Alias: " + alias + ".");
-            //                System.out.println("\tIs Key Entry: " +
+            //                getLog().info("Alias: " + alias + ".");
+            //                getLog().info("\tIs Key Entry: " +
             //                                   keyStore.isKeyEntry(alias) + ".");
-            //                System.out.println("\tCert Is X-509: " +
+            //                getLog().info("\tCert Is X-509: " +
             //                                   (keyStore.getCertificate(alias) instanceof
             //                                    X509Certificate) + ".");
             if (keyStore.isKeyEntry(alias)
                     && keyStore.getCertificate(alias) instanceof X509Certificate) {
                 X509Certificate cert
                         = (X509Certificate) keyStore.getCertificate(alias);
-                //                    System.out.println("\t\tNot Before: " +
+                //                    getLog().info("\t\tNot Before: " +
                 //                                       cert.getNotBefore() + ".");
-                //                    System.out.println("\t\tNow: " + now + ".");
-                //                    System.out.println("\t\tNot After: " + cert.getNotAfter() +
+                //                    getLog().info("\t\tNow: " + now + ".");
+                //                    getLog().info("\t\tNot After: " + cert.getNotAfter() +
                 //                                       ".");
-                //                    System.out.println("\t\t'Not Before' Before Now: " +
+                //                    getLog().info("\t\t'Not Before' Before Now: " +
                 //                                       cert.getNotBefore().before(now) + ".");
-                //                    System.out.println("\t\t'Not After' After Now: " +
+                //                    getLog().info("\t\t'Not After' After Now: " +
                 //                                       cert.getNotAfter().after(now) + ".");
                 if (cert.getNotBefore().before(now)
                         && (minEndDate == null || cert.getNotAfter().after(minEndDate))) {
                     Key key = keyStore.getKey(alias, null);
-                    //                        System.out.println("\t\t\tKey Is Private: " +
+                    //                        getLog().info("\t\t\tKey Is Private: " +
                     //                                           (key instanceof PrivateKey) + ".");
                     if (key instanceof PrivateKey) {
                         UserCredential cred
@@ -108,12 +110,12 @@ public class IdentityKeyStoreAdapter {
                                         (PrivateKey) key);
                         //                        credentials.put(alias,
                         credentials.put(cred.getFriendlyName(), cred);
-                        //                        System.out.println(cred.getFriendlyName());
+                        //                        getLog().info(cred.getFriendlyName());
                     }
                 }
             }
         }
-        System.out.println(credentials.size()
+        getLog().info(credentials.size()
                 + " total candidate credentials found.");
         return credentials;
     }
@@ -124,7 +126,7 @@ public class IdentityKeyStoreAdapter {
             CertificateException,
             UnrecoverableKeyException {
         return getBasicEncryptionCredential(aliasFilter,
-                 null
+                null
         //                , new Date()
         );
     }
@@ -136,7 +138,7 @@ public class IdentityKeyStoreAdapter {
             UnrecoverableKeyException {
         for (UserCredential cred : filterPrivateKeys(aliasFilter).values()) {
             if (cred.getPurpose().equals(CertificateProposedPurpose.ADVANCED_SIGNATURE)) {
-                System.out.println("Found advanced signature credential.  Alias: "
+                getLog().info("Found advanced signature credential.  Alias: "
                         + cred.getAlias() + ".");
                 return cred;
             }
@@ -166,11 +168,15 @@ public class IdentityKeyStoreAdapter {
             UnrecoverableKeyException {
         for (UserCredential cred : filterPrivateKeys(aliasFilter, minEndDate).values()) {
             if (cred.getPurpose().equals(CertificateProposedPurpose.BASIC_ENCRYPTION)) {
-                System.out.println("Found basic encryption credential.  Alias: "
+                getLog().info("Found basic encryption credential.  Alias: "
                         + cred.getAlias() + ".");
                 return cred;
             }
         }
         return null;
+    }
+
+    private static Logger getLog() {
+        return Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     }
 }

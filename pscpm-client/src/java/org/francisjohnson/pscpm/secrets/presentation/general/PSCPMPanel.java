@@ -22,6 +22,7 @@ import java.awt.Dimension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -31,8 +32,13 @@ import org.francisjohnson.pscpm.secrets.business.SecretsFacade;
 import org.francisjohnson.pscpm.secrets.presentation.views.PSCPMViewId;
 import org.francisjohnson.pscpm.secrets.presentation.events.NavigationListener;
 
-
 public class PSCPMPanel extends JPanel {
+
+    private final Logger _log = Logger.getLogger(getClass().getName());
+
+    protected Logger getLog() {
+        return _log;
+    }
     private PSCPMViewId viewId;
     private transient SecretsFacade session;
     private transient NavigationListener navigator;
@@ -62,47 +68,47 @@ public class PSCPMPanel extends JPanel {
     }
 
     private static void errorDriver(Component parentComponent,
-                                    String dialogTitle,
-                                    String userFriendlyMessage,
-                                    String additionalInfo, Exception e) {
+            String dialogTitle,
+            String userFriendlyMessage,
+            String additionalInfo, Exception e) {
         // Phase 1
-        additionalInfo =
-                additionalInfo == null || additionalInfo.trim().isEmpty() ?
-                "" : null;
-        dialogTitle =
-                dialogTitle == null || dialogTitle.trim().isEmpty() ? "Unexpected Error" :
-                dialogTitle;
+        additionalInfo
+                = additionalInfo == null || additionalInfo.trim().isEmpty()
+                ? "" : null;
+        dialogTitle
+                = dialogTitle == null || dialogTitle.trim().isEmpty() ? "Unexpected Error"
+                : dialogTitle;
         // Phase 2
-        userFriendlyMessage =
-                userFriendlyMessage == null || userFriendlyMessage.trim().isEmpty() ?
-                "An unexpected error occurred." +
-                (additionalInfo == null && e == null ?
-                 "No further information available" :
-                 "See StdError (in the console) for more information.") :
-                userFriendlyMessage;
+        userFriendlyMessage
+                = userFriendlyMessage == null || userFriendlyMessage.trim().isEmpty()
+                ? "An unexpected error occurred."
+                + (additionalInfo == null && e == null
+                        ? "No further information available"
+                        : "See StdError (in the console) for more information.")
+                : userFriendlyMessage;
         // Phase 3
-        String logMessage =
-            "User-friendly error message: " + userFriendlyMessage +
-            (additionalInfo == null ?
-             e == null ? "No further information available." : "" :
-             "  Additional information: " + additionalInfo);
+        String logMessage
+                = "User-friendly error message: " + userFriendlyMessage
+                + (additionalInfo == null
+                        ? e == null ? "No further information available." : ""
+                        : "  Additional information: " + additionalInfo);
         // Phase 4
-        (e == null ? new Exception(logMessage) :
-         new Exception(logMessage, e)).printStackTrace();
+        (e == null ? new Exception(logMessage)
+                : new Exception(logMessage, e)).printStackTrace();
         JOptionPane.showMessageDialog(parentComponent, userFriendlyMessage,
-                                      dialogTitle, JOptionPane.ERROR_MESSAGE);
+                dialogTitle, JOptionPane.ERROR_MESSAGE);
     }
 
     public static void handleException(Component parentComponent,
-                                       String dialogTitle,
-                                       String userFriendlyMessage,
-                                       String additionalInfo, Exception e) {
+            String dialogTitle,
+            String userFriendlyMessage,
+            String additionalInfo, Exception e) {
         errorDriver(parentComponent, dialogTitle, userFriendlyMessage,
-                    additionalInfo, e);
+                additionalInfo, e);
     }
 
     private void errorDriver(String dialogTitle, String userFriendlyMessage,
-                             String additionalInfo, Exception e) {
+            String additionalInfo, Exception e) {
         errorDriver(this, dialogTitle, userFriendlyMessage, additionalInfo, e);
     }
 
@@ -115,17 +121,17 @@ public class PSCPMPanel extends JPanel {
     }
 
     public void handleException(String dialogTitle, String userFriendlyMessage,
-                                Exception e) {
+            Exception e) {
         errorDriver(dialogTitle, userFriendlyMessage, null, e);
     }
 
     public void handleException(String dialogTitle, String userFriendlyMessage,
-                                String additionalInfo, Exception e) {
+            String additionalInfo, Exception e) {
         errorDriver(dialogTitle, userFriendlyMessage, additionalInfo, e);
     }
 
     public void handleError(String dialogTitle, String userFriendlyMessage,
-                            String additionalInfo) {
+            String additionalInfo) {
         errorDriver(dialogTitle, userFriendlyMessage, additionalInfo, null);
     }
 
@@ -135,14 +141,14 @@ public class PSCPMPanel extends JPanel {
 
     public void informUser(String dialogTitle, String userFriendlyMessage) {
         JOptionPane.showMessageDialog(this, userFriendlyMessage, dialogTitle,
-                                      JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void debug(String message, String... subMessages) {
-        System.out.println(message);
+        getLog().fine(message);
         if (subMessages != null) {
             for (String msg : subMessages) {
-                System.out.println("\t" + msg);
+                getLog().fine("\t" + msg);
             }
         }
     }
@@ -151,7 +157,7 @@ public class PSCPMPanel extends JPanel {
         int retval = x1;
         if (xn != null) {
             for (int i = 0; i < xn.length;
-                 retval = Math.max(retval, xn[i]), i++)
+                    retval = Math.max(retval, xn[i]), i++)
                 ;
         }
         return retval;
@@ -161,9 +167,9 @@ public class PSCPMPanel extends JPanel {
         int maxWidth = 0;
         if (labels != null) {
             for (JLabel label : labels) {
-                maxWidth =
-                        max(maxWidth, label.getWidth(), label.getPreferredSize().width,
-                            label.getMinimumSize().width);
+                maxWidth
+                        = max(maxWidth, label.getWidth(), label.getPreferredSize().width,
+                                label.getMinimumSize().width);
             }
             for (JLabel label : labels) {
                 Dimension dim = null;

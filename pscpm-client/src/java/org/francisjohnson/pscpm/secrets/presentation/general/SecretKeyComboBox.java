@@ -18,6 +18,7 @@ package org.francisjohnson.pscpm.secrets.presentation.general;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
@@ -26,19 +27,25 @@ import javax.swing.event.ListDataListener;
 
 import org.francisjohnson.pscpm.security.data.UserSecretKey;
 
-
 public class SecretKeyComboBox extends JComboBox<UserSecretKey> {
+
+    private final Logger _log = Logger.getLogger(getClass().getName());
+
+    private Logger getLog() {
+        return _log;
+    }
     private final List<UserSecretKey> data = new ArrayList<UserSecretKey>();
 
     public final class MyModelImpl implements ComboBoxModel<UserSecretKey> {
+
         private Number selectedId;
-        private final List<ListDataListener> dataListeners =
-            new ArrayList<ListDataListener>();
+        private final List<ListDataListener> dataListeners
+                = new ArrayList<ListDataListener>();
 
         @Override
         public void setSelectedItem(Object selectedItem) {
-            setSelectedId(selectedItem == null ? null :
-                          ((UserSecretKey)selectedItem).getId());
+            setSelectedId(selectedItem == null ? null
+                    : ((UserSecretKey) selectedItem).getId());
         }
 
         public Object getSelectedItem() {
@@ -62,16 +69,16 @@ public class SecretKeyComboBox extends JComboBox<UserSecretKey> {
         }
 
         public void addListDataListener(ListDataListener lsnr) {
-            System.out.println(getClass().getSimpleName() +
-                               ".  addListDataListener(...).");
+            getLog().info(getClass().getSimpleName()
+                    + ".  addListDataListener(...).");
             if (lsnr != null) {
                 getDataListeners().add(lsnr);
             }
         }
 
         public void removeListDataListener(ListDataListener lsnr) {
-            System.out.println(getClass().getSimpleName() +
-                               ".  removeListDataListener(...).");
+            getLog().info(getClass().getSimpleName()
+                    + ".  removeListDataListener(...).");
             if (lsnr != null) {
                 getDataListeners().remove(lsnr);
             }
@@ -91,9 +98,9 @@ public class SecretKeyComboBox extends JComboBox<UserSecretKey> {
 
         public void notifyDataListeners() {
             if (getData() != null) {
-                ListDataEvent evt =
-                    new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, 0,
-                                      getData().size() - 1);
+                ListDataEvent evt
+                        = new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, 0,
+                                getData().size() - 1);
                 for (ListDataListener lsnr : getDataListeners()) {
                     lsnr.contentsChanged(evt);
                 }
@@ -126,7 +133,6 @@ public class SecretKeyComboBox extends JComboBox<UserSecretKey> {
     //                }
     //            });
     //    }
-
     public void setData(List<UserSecretKey> data) {
         getData().clear();
         if (data != null) {

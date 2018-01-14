@@ -28,7 +28,7 @@ import org.francisjohnson.pscpm.security.services.SecurityServiceJaxRsClientImpl
 
 public class ServiceFacade<Iface extends Object> {
 
-    public static final String DEFAULT_SERVER_URL = "https://localhost:8181/pscpm-services-web";
+    public static final String DEFAULT_SERVER_URL = "https://localhost/pscpm-services-web";
 
     private Class<Iface> iface;
     private String serverUrl;
