@@ -1,12 +1,3 @@
-/pscpm-common/dist/
-/pscpm-common/build/
-/pscpm-client/build/
-/pscpm-security-mware/build/
-/pscpm-client/dist/
-/build/
-/pscpm-security-mware/dist/
-/dist/
-/pscpm-secrets-mware/dist/
-/pscpm-services-web/dist/
-/pscpm-services-web/build/
-/pscpm-secrets-mware/build/
+*/target/
+*/dist/
+*/build/
