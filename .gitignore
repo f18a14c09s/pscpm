@@ -11,3 +11,4 @@
 /pscpm-services-web/build/
 /pscpm-secrets-mware/build/
 /.idea/
+**/target/
