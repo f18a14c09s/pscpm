@@ -40,6 +40,7 @@
     </dependencies>
 
     <build>
+        <finalName>pscpm-services</finalName>
         <plugins>
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
@@ -51,6 +52,16 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <configuration>
+                            <addUser>
+                                <users>
+                                    <user>
+                                        <username>wildfly-admin</username>
+                                        <password>wildfly-admin</password>
+                                    </user>
+                                </users>
+                            </addUser>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

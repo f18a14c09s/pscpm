@@ -28,7 +28,7 @@ public class LinkWithDeleteIcon extends JPanel {
     private Hyperlink hyperlink = new Hyperlink();
     private Hyperlink deleteIcon =
         new Hyperlink(new ImageIcon(getClass().getResource(
-                "/src/main/resources/jlfgr/toolbarButtonGraphics/general/Delete16.gif")));
+                "/jlfgr/toolbarButtonGraphics/general/Delete16.gif")));
     private boolean editable;
 
     public LinkWithDeleteIcon(String label, boolean editable) {
