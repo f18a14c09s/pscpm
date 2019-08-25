@@ -51,17 +51,13 @@
                     <execution>
                         <phase>install</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>deploy</goal>
                         </goals>
                         <configuration>
-                            <addUser>
-                                <users>
-                                    <user>
-                                        <username>wildfly-admin</username>
-                                        <password>wildfly-admin</password>
-                                    </user>
-                                </users>
-                            </addUser>
+                            <id>wildflyPscpmAdmin</id>
+                            <protocol>remote+https</protocol>
+                            <hostname>pscpm-admin.francisjohnson.org</hostname>
+                            <port>443</port>
                         </configuration>
                     </execution>
                 </executions>

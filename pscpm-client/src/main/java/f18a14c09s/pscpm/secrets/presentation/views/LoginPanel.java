@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2018 Francis Johnson
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,39 +16,7 @@
  */
 package f18a14c09s.pscpm.secrets.presentation.views;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import java.io.IOException;
-
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
 import f18a14c09s.pscpm.general.services.ServiceFacade;
-
 import f18a14c09s.pscpm.secrets.business.SecretsFacade;
 import f18a14c09s.pscpm.secrets.presentation.PSCPMClientMain;
 import f18a14c09s.pscpm.secrets.presentation.events.LoginSucceededEvent;
@@ -56,6 +24,18 @@ import f18a14c09s.pscpm.secrets.presentation.general.PSCPMPanel;
 import f18a14c09s.pscpm.security.data.User;
 import f18a14c09s.pscpm.security.data.javacrypto.UserCredential;
 import f18a14c09s.pscpm.security.services.javacrypto.IdentityKeyStoreAdapter;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.List;
+import java.util.*;
 
 public class LoginPanel extends PSCPMPanel {
 
@@ -83,9 +63,11 @@ public class LoginPanel extends PSCPMPanel {
         try {
             jbInit();
         } catch (Exception e) {
-            PSCPMPanel.handleException(this, "Login UI Unavailable",
+            PSCPMPanel.handleException(this,
+                    "Login UI Unavailable",
                     "Unable to access the system's login user interface.",
-                    null, e);
+                    null,
+                    e);
         }
     }
 
@@ -99,9 +81,7 @@ public class LoginPanel extends PSCPMPanel {
         flowLayout2.setAlignment(2);
         this.setLayout(gridBagLayout1);
         loginBox.setLayout(borderLayout1);
-        loginBox.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY,
-                1),
-                "Login:"));
+        loginBox.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 1), "Login:"));
         loginHeaderBox.setLayout(flowLayout1);
         loginHeaderBox.setVisible(false);
         loginFieldBox.setLayout(gridLayout1);
@@ -129,9 +109,17 @@ public class LoginPanel extends PSCPMPanel {
         loginFooterBox.add(loginButton, null);
         loginBox.add(loginFooterBox, BorderLayout.SOUTH);
         this.add(loginBox,
-                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+                new GridBagConstraints(0,
+                        0,
+                        1,
+                        1,
+                        0.0,
+                        0.0,
+                        GridBagConstraints.CENTER,
                         GridBagConstraints.NONE,
-                        new Insets(0, 0, 0, 0), 0, 0));
+                        new Insets(0, 0, 0, 0),
+                        0,
+                        0));
         selCredLabel.setText("Select a Credential:");
         selCredLabel.setFont(new Font("Arial", 0, 12));
         selCredLabel.setPreferredSize(new Dimension(120, 20));
@@ -144,14 +132,14 @@ public class LoginPanel extends PSCPMPanel {
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String dbUrl
-                            = selDbList == null || !(selDbList.getSelectedValue() instanceof String) ? null
-                            : (String) selDbList.getSelectedValue();
-                    UserCredential cred
-                            = selCredList == null || !(selCredList.getSelectedValue() instanceof UserCredential) ? null
-                            : (UserCredential) selCredList.getSelectedValue();
-                    List<String> validationErrors
-                            = new ArrayList<String>();
+                    String dbUrl = selDbList == null || !(selDbList.getSelectedValue() instanceof String) ?
+                            null :
+                            (String) selDbList.getSelectedValue();
+                    UserCredential cred =
+                            selCredList == null || !(selCredList.getSelectedValue() instanceof UserCredential) ?
+                                    null :
+                                    (UserCredential) selCredList.getSelectedValue();
+                    List<String> validationErrors = new ArrayList<String>();
                     if (dbUrl == null || dbUrl.isEmpty()) {
                         validationErrors.add("Please specify a server URL.");
                     }
@@ -159,26 +147,22 @@ public class LoginPanel extends PSCPMPanel {
                         validationErrors.add("Please specify a credential.");
                     }
                     if (!validationErrors.isEmpty()) {
-                        handleError("Login Cannot Proceed",
-                                "Error: " + validationErrors + ".");
+                        handleError("Login Cannot Proceed", "Error: " + validationErrors + ".");
                         return;
                     }
-                    SecretsFacade secrets
-                            = SecretsFacade.startSession(dbUrl, cred);
+                    SecretsFacade secrets = SecretsFacade.startSession(dbUrl, cred);
                     User me = secrets.getUser();
                     if (me == null) {
-                        handleError("Login Failed", "Login failed.",
-                                "The User object is null.");
+                        handleError("Login Failed", "Login failed.", "The User object is null.");
                     } else {
                         if (secrets.isOffline()) {
                             handleError("Offline Mode",
-                                    "The remote secrets and/or security service(s) is/are inaccessible."
-                                    + "\n\nTherefore this client application is in offline mode."
-                                    + "\n\nAny operations you initiate will occur against the local cache file only.");
+                                    "The remote secrets and/or security service(s) is/are inaccessible." +
+                                            "\n\nTherefore this client application is in offline mode." +
+                                            "\n\nAny operations you initiate will occur against the local cache file only.");
                         }
                         debug("Login successful!");
-                        getNavigator().navigate(new LoginSucceededEvent(e.getSource(),
-                                secrets));
+                        getNavigator().navigate(new LoginSucceededEvent(e.getSource(), secrets));
                     }
                 } catch (Exception f) {
                     handleException("Login Failed", "Login failed.", f);
@@ -191,11 +175,10 @@ public class LoginPanel extends PSCPMPanel {
         return this;
     }
 
-    private static <Compon extends Container> Compon traverse(Container cur,
-            Class<Compon> clazz) {
-        return cur == null ? null
-                : clazz.isAssignableFrom(cur.getClass()) ? (Compon) cur
-                : traverse(cur.getParent(), clazz);
+    private static <Compon extends Container> Compon traverse(Container cur, Class<Compon> clazz) {
+        return cur == null ?
+                null :
+                clazz.isAssignableFrom(cur.getClass()) ? (Compon) cur : traverse(cur.getParent(), clazz);
     }
 
     private void dbListInit() {
@@ -208,16 +191,11 @@ public class LoginPanel extends PSCPMPanel {
     private void credListInit() {
         DefaultListModel<Object> model = new DefaultListModel<Object>();
         try {
-            model.addElement(IdentityKeyStoreAdapter.getAdvancedSignatureCredential(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER));
-        } catch (UnrecoverableKeyException e) {
-            handleException(e);
-        } catch (CertificateException e) {
-            handleException(e);
-        } catch (NoSuchAlgorithmException e) {
-            handleException(e);
-        } catch (IOException e) {
-            handleException(e);
-        } catch (KeyStoreException e) {
+            for (UserCredential credential : IdentityKeyStoreAdapter.filterPrivateKeys(IdentityKeyStoreAdapter.DEFAULT_KEY_ALIAS_FILTER)
+                    .values()) {
+                model.addElement(credential);
+            }
+        } catch (UnrecoverableKeyException | CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException e) {
             handleException(e);
         }
         selCredList.setModel(model);
