@@ -51,6 +51,7 @@ public class ServiceFacade<Iface extends Object> {
     }
 
     public Iface newFacade() {
+        // TODO: Pass in the UserCredential or private key alias (or other identifier) and ensure that the JAX-RS client uses the specified private key.
         if (getIface().equals(ISecurityService.class)) {
             return (Iface) new SecurityServiceJaxRsClientImpl(getCred().getKeyStore(), getServerUrl());
         } else if (getIface().equals(ISecretsService.class)) {
