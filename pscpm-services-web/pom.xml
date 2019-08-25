@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-  	<groupId>f18a14c09s</groupId>
-  	<artifactId>pscpm-parent</artifactId>
-  	<version>1.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>f18a14c09s</groupId>
-  <artifactId>pscpm-services-web</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <name>PSCPM Web Services</name>
-  <packaging>war</packaging>
+    <parent>
+        <groupId>f18a14c09s.pscpm</groupId>
+        <artifactId>pscpm-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  <dependencies>
-    <dependency>
-    	<groupId>f18a14c09s</groupId>
-    	<artifactId>pscpm-common</artifactId>
-    	<version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>f18a14c09s</groupId>
-    	<artifactId>pscpm-security-mware</artifactId>
-    	<version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>f18a14c09s</groupId>
-    	<artifactId>pscpm-secrets-mware</artifactId>
-    	<version>1.0-SNAPSHOT</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
-	<dependency>
-		<groupId>javax</groupId>
-		<artifactId>javaee-api</artifactId>
-		<version>8.0</version>
-		<scope>provided</scope>
-	</dependency>
-  </dependencies>
+    <groupId>f18a14c09s</groupId>
+    <artifactId>pscpm-services-web</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>PSCPM Web Services</name>
+    <packaging>war</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>f18a14c09s.pscpm</groupId>
+            <artifactId>pscpm-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>f18a14c09s.pscpm</groupId>
+            <artifactId>pscpm-security-mware</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>f18a14c09s.pscpm</groupId>
+            <artifactId>pscpm-secrets-mware</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

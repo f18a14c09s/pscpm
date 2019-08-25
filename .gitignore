@@ -1,4 +1,8 @@
+# Maven build output:
 */target/
-*/dist/
-*/build/
+
+# IntelliJ IDEA Files:
+/.idea/
+
+# jEdit Backup files:
 *.*~
