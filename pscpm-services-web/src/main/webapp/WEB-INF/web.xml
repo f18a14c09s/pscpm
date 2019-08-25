@@ -12,26 +12,26 @@
             <description/>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
-        <auth-constraint>
-            <description/>
-            <role-name>pscpm-user</role-name>
-            <role-name>asadmin</role-name>
-        </auth-constraint>
+<!--        <auth-constraint>-->
+<!--            <description/>-->
+<!--            <role-name>pscpm-user</role-name>-->
+<!--            <role-name>asadmin</role-name>-->
+<!--        </auth-constraint>-->
         <user-data-constraint>
             <description/>
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-    <login-config>
-        <auth-method>CLIENT-CERT</auth-method>
-        <realm-name>certificate</realm-name>
-    </login-config>
-    <security-role>
-        <description/>
-        <role-name>pscpm-user</role-name>
-    </security-role>
-    <security-role>
-        <description/>
-        <role-name>asadmin</role-name>
-    </security-role>
+<!--    <login-config>-->
+<!--        <auth-method>CLIENT-CERT</auth-method>-->
+<!--        <realm-name>certificate</realm-name>-->
+<!--    </login-config>-->
+<!--    <security-role>-->
+<!--        <description/>-->
+<!--        <role-name>pscpm-user</role-name>-->
+<!--    </security-role>-->
+<!--    <security-role>-->
+<!--        <description/>-->
+<!--        <role-name>asadmin</role-name>-->
+<!--    </security-role>-->
 </web-app>
